@@ -7,6 +7,7 @@ Object::Object() {
 	name = " ";
 	pos = vector3();
 	type = none;
+	DebugColor = vector3(100, 100, 100);
 }
 
 Object::~Object() {
@@ -17,6 +18,7 @@ Object::Object(vector3 Pos) {
 	name = " ";
 	pos = Pos;
 	type = none;
+	DebugColor = vector3(100, 100, 100);
 }
 
 bool Object::hit(vector3 eye, vector3 Npe, vector3& Hitpos, vector3& HitN) {
@@ -84,16 +86,24 @@ bool Sphere::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 
 //********************Plane******************
 Plane::Plane() :Object() {
-	type = sphere;
+	type = plane;
 }
 
 Plane::Plane(vector3 Pos, vector3 Normal) : Object(Pos) {
-	type = sphere;
+	type = plane;
 	Ni = Normal;
 }
 
-bool Plane::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& HitN) {
-
+bool Plane::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
+	vector3 ei = (eye - pos);
+	//vector3 ie = (pos - eye);
+	float surface = vector3::dot(Ni, ei); //b and c are references to the quadratic formula
+	if (surface >= 0) {
+		float th = (-surface / vector3::dot(Ni, Npe));
+		HitPos = eye + (Npe * th);
+		hitN = Ni;
+		return true;
+	}
 	return false;
 }
 
@@ -107,6 +117,37 @@ Light::Light() : Object() {
 Light::Light(vector3 Pos, vector3 c, float i) : Object(Pos) {
 	color = c;
 	intensity = i;
+}
+
+//**************material*********************
+
+Material::Material(vector3 color) {
+	base = color;
+	dp = 1.0; rp = 0.0; sp = 0.0; tp = 0.0;
+}
+Material::~Material() {
+
+}
+
+vector3 Material::GetColor(std::vector<Light*>& lights, vector3& surfacenormal,
+	vector3* transmissionColor, vector3* reflectionColor)
+{
+	diffuse = Diffuse(lights);
+	specular = Specular(lights);
+	return (diffuse * dp) + (specular * sp) + (reflection * rp) + (transmission * tp);
+
+}
+vector3 Material::Diffuse(std::vector<Light*>& lights){
+	return vector3();
+}
+vector3 Material::Specular(std::vector<Light*>& lights) {
+	return vector3();
+}
+vector3 Material::Reflection() {
+	return vector3();
+}
+vector3 Material::Transmission() {
+	return vector3();
 }
 
 

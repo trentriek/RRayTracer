@@ -69,6 +69,7 @@ void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) 
 			if (vector3::distance(Pe, HitPos) < vector3::distance(Pe, currentHit)) {
 				currentHit = HitPos;
 				hitobj = object;
+				Obj = object;
 			}
 		}
 	}
@@ -83,20 +84,26 @@ void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) 
 		//hitobj.getcolor(s)
 
 		if (testing) {
-			/*for (Light l : lightList) {
-				vector3 light = l.getPos();
+			//for (Light* l : lightList) {
+				//vector3 light = l->getPos();
+				vector3 light = lightList[0]->getPos();
+				light = light.normalize();
 				float cos = vector3::dot(light, HitNormal);
 				//clamp between 0 and 1
 				float t = (0.5f * cos) + 0.5f;
+				//printf("%f\n", t);
 				clamp(t);
-				color.x = 255.0f * t;
-				color.y = 128.0f * t;
-				color.z = 64.0f  * t; 
-			}*/
+				vector3 g = Obj->DebugColor;
+				color.x = g.x * t;
+				color.y = g.y * t;
+				color.z = g.z * t;
 
-			color.x = 255.0f;
-			color.y = 0.0f;
-			color.z = 64.0f;
+
+			//}
+
+			//color.x = 255.0f;
+			//color.y = 0.0f;
+			//color.z = 64.0f;
 		}
 
 		

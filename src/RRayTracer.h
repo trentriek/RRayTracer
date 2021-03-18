@@ -41,7 +41,7 @@ public:
 	//~RRayTracer();
 	Camera* persp;
 	std::vector<Object*> objList;
-	std::vector<Light> lightList;
+	std::vector<Light*> lightList;
 	void Render(Image& output);
 
 

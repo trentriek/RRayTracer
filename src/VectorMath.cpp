@@ -204,6 +204,27 @@ void clamp(float& a) {
 	}
 }
 
+void clamp(vector3& a) {
+	if (a.x > 1.0) {
+		a.x = 1.0;
+	}
+	else if (a.x < 0.0) {
+		a.x = 0.0;
+	}
+	if (a.y > 1.0) {
+		a.y = 1.0;
+	}
+	else if (a.y < 0.0) {
+		a.y = 0.0;
+	}
+	if (a.z > 1.0) {
+		a.z = 1.0;
+	}
+	else if (a.z < 0.0) {
+		a.z = 0.0;
+	}
+}
+
 float dot(float x1, float y1, float z1, float x2, float y2, float z2) {
 	return (x1 * x2 + y1 * y2 + z1 * z2);
 }
