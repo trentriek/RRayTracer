@@ -61,15 +61,15 @@ bool Sphere::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 
 	
 	vector3 ei = (eye - pos);
-	//vector3 ie = (pos - eye);
+	vector3 ie = (pos - eye);
 	float c = vector3::dot(ei, ei) - (radius * radius); //b and c are references to the quadratic formula
 	if (c >= 0.0f) {
-		float b = vector3::dot(Npe, ei);
-		float tri = (b * b) - c;  //tri is the discriminant
+		float b = vector3::dot(Npe, ie);
+		float delta = (b * b) - c;  //tri is the discriminant
 		//printf("%f \n", tri);
 		//printf("%f , %f, %f", Npe.x, Npe.y, Npe.z);
-		if (b >= 0.000f || tri >= 0.000f) {
-			float th = b - sqrt(tri);
+		if (b >= 0.000f && delta >= 0.000f) {
+			float th = b - sqrt(delta);
 			HitPos = eye + (Npe * th);
 			hitN = (HitPos - pos) / radius;
 			//get normal
@@ -96,11 +96,11 @@ Plane::Plane(vector3 Pos, vector3 Normal) : Object(Pos) {
 
 bool Plane::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 	vector3 ei = (eye - pos);
-	//vector3 ie = (pos - eye);
-	float surface = vector3::dot(Ni, ei); //b and c are references to the quadratic formula
-	if (surface >= 0) {
+	float surface = vector3::dot(Ni, ei); 
+	float surface2 = vector3::dot(Ni, Npe);
+	if (surface2 < 0) {
 		float th = (-surface / vector3::dot(Ni, Npe));
-		HitPos = eye + (Npe * th);
+		HitPos = (Npe * th);
 		hitN = Ni;
 		return true;
 	}

@@ -67,6 +67,8 @@ public:
 	Light(vector3 Pos, vector3 c = vector3(255.0f, 255.0f, 255.0f), float i = 0.5f);
 	float intensity;
 	vector3 color;
+	//vector3 getRay(vector3 pointpos);
+
 };
 
 //Material Base class

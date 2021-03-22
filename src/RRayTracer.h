@@ -4,7 +4,7 @@
 #include "Object.h"
 //#include "VectorMath.h"
 //#include "GraphicsMath.h"
-//#include <math.h>
+#include <math.h>
 #include "Load_Image.h"
 #include <vector>
 
@@ -57,6 +57,7 @@ public:
 
 private:
 	vector3 currentHit;
+	vector3 currentNormal;
 	void rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj);
 	int objnum;
 
