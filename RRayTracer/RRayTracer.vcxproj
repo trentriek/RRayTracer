@@ -124,8 +124,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\src\GraphicsMath.h" />
+    <ClInclude Include="..\src\LightTypes.h" />
     <ClInclude Include="..\src\Load_Image.h" />
     <ClInclude Include="..\src\Object.h" />
+    <ClInclude Include="..\src\RC.h" />
     <ClInclude Include="..\src\RRayTracer.h" />
     <ClInclude Include="..\src\stb.h" />
     <ClInclude Include="..\src\stb_image.h" />
@@ -134,6 +136,7 @@
     <ClInclude Include="..\src\VectorMath.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\LightTypes.cpp" />
     <ClCompile Include="..\src\Load_Image.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\Object.cpp" />

@@ -1,13 +1,13 @@
-#include "Object.h"
+#include "RC.h"
 #include <stdio.h>
-
-
+//_RC_
 //********************Object******************
 Object::Object() {
 	name = " ";
 	pos = vector3();
 	type = none;
 	DebugColor = vector3(100, 100, 100);
+	material = &defaultMat;
 }
 
 Object::~Object() {
@@ -85,7 +85,7 @@ bool Sphere::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 
 
 //********************Plane******************
-Plane::Plane() :Object() {
+Plane::Plane() : Object() {
 	type = plane;
 }
 
@@ -95,6 +95,7 @@ Plane::Plane(vector3 Pos, vector3 Normal) : Object(Pos) {
 }
 
 bool Plane::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
+
 	vector3 ei = (eye - pos);
 	float surface = vector3::dot(Ni, ei); 
 	float surface2 = vector3::dot(Ni, Npe);
@@ -110,38 +111,88 @@ bool Plane::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 
 //********************Light******************
 
-Light::Light() : Object() {
-	color = vector3(255.0f, 255.0f, 255.0f);
-	intensity = 0.5f;
-}
+//Light::Light() : Object() {
+//	color = vector3(255.0f, 255.0f, 255.0f);
+//	intensity = 0.5f;
+//	type = pointlight;
+//}
 Light::Light(vector3 Pos, vector3 c, float i) : Object(Pos) {
 	color = c;
 	intensity = i;
+	type = pointlight;
+}
+bool Light::isVisible() {
+	Nlh = RRayTracer::ray(pos, HitPos);
+	HitPosOffset = HitPos + HitNormal/5;
+	ln = HitPos - pos;
+	ln = -ln.normalize();
+	if (!RRayTracer::raycast(HitPosOffset, Nlh , raytracer->objList, &o, &hitp, &hitn, false)) {
+		Cos = vector3::dot(ln, HitNormal);
+		out_t = (0.5f * Cos) + 0.5f;
+		out_s = -Nlh.z + 2.0f * (vector3::dot(Nlh, HitNormal)) * HitNormal.z;
+		if (out_s < 0) out_s = 0; if (out_s > 1) out_s = 1;
+		return true;
+	}
+	else if (vector3::distance(hitp, pos) > vector3::distance(HitPosOffset, pos) || vector3::distance(hitp, pos) < 0) {
+		Cos = vector3::dot(ln, HitNormal);
+		out_t = (0.5f * Cos) + 0.5f;
+		out_s = -Nlh.z + 2.0f * (vector3::dot(Nlh, HitNormal)) * HitNormal.z;
+		if (out_s < 0) out_s = 0; if (out_s > 1) out_s = 1;
+		return true;
+	}
+	if (out_t) return true;
+	return false;
 }
 
 //**************material*********************
 
-Material::Material(vector3 color) {
-	base = color;
-	dp = 1.0; rp = 0.0; sp = 0.0; tp = 0.0;
+Material::Material(vector3 DC, vector3 RC, float DP, float SP, float TP, float RP) 
+	: diffuseC(DC), specularC(RC)
+{
+	dif = DP;
+	spec = SP;
+	trans = TP;
+	reflect = RP;
+	//try {
+
+		//if ((dif + spec + trans + reflect) > 1.0f) {
+		//	std::printf("the material's intensity value cannot exceed 1");
+		//	throw 1;
+		//}
+	//}
+	//catch (int e) {
+
+	//}
 }
 Material::~Material() {
 
 }
 
-vector3 Material::GetColor(std::vector<Light*>& lights, vector3& surfacenormal,
-	vector3* transmissionColor, vector3* reflectionColor)
+vector3 Material::GetColor(vector3* DC, vector3* RC, vector3* TC, vector3* RFC)
 {
-	diffuse = Diffuse(lights);
-	specular = Specular(lights);
-	return (diffuse * dp) + (specular * sp) + (reflection * rp) + (transmission * tp);
-
+	vector3 output;
+		if ( dif > 0.0001f) output = output + Diffuse() * dif;
+		if (spec > 0.0001f) output = output + Specular() * spec;
+		if (trans > 0.0001f) output = output + Transmission() * trans;
+		if (reflect > 0.0001f) output = output + Reflection() * reflect;
+		return output;
 }
-vector3 Material::Diffuse(std::vector<Light*>& lights){
-	return vector3();
+vector3 Material::Diffuse(){
+	vector3 x = HitPos;
+	//printf("%d", raytracer->lightList.size());
+	vector3 ln = HitPos - raytracer->lightList[0]->getPos();
+	ln = -ln.normalize();
+	float Cos = vector3::dot(ln, HitNormal);
+	float t = (0.5f * Cos) + 0.5f;
+	//clamp between 0 and 1
+	clamp(t);
+	return diffuseC * t;
 }
-vector3 Material::Specular(std::vector<Light*>& lights) {
-	return vector3();
+vector3 Material::Specular() {
+	vector3 ln = HitPos - raytracer->lightList[0]->getPos();
+	float S = -ln.z + 2.0f * (ln.x * HitNormal.x + ln.y * HitNormal.y + ln.z * HitNormal.z) * HitNormal.z;
+	if (S < 0) S = 0; if (S > 1) S = 1;
+	return specularC * S;
 }
 vector3 Material::Reflection() {
 	return vector3();

@@ -2,8 +2,6 @@
 #ifndef RRAY_TRACER
 #define RRAY_TRACER
 #include "Object.h"
-//#include "VectorMath.h"
-//#include "GraphicsMath.h"
 #include <math.h>
 #include "Load_Image.h"
 #include <vector>
@@ -13,7 +11,7 @@ class Camera {
 public:
 	Camera(vector3 p = vector3(), int w = 960, int h = 540, float fd = 1.0f);
 	~Camera();
-	vector3 pos;
+	vector3 Pos;
 	int width;
 	int height;
 	float focus_dist;
@@ -23,7 +21,7 @@ public:
 	float wratio;
 	float hratio;
 
-private:
+protected:
 	vector3 n2;
 	vector3 n1;
 	vector3 n0;
@@ -46,16 +44,20 @@ public:
 
 
 
-	//helper values placed within the class declaration for quick access 
-	vector3 Npe;
-	vector3 Pe;
-	vector3 HitPos;
-	vector3 HitNormal;
-	Object* hitobj;
+	//helper values placed within the class declaration for quick access - moved to render cache 
+	//vector3 Npe;
+	//vector3 Pe;
+	//vector3 HitPos;
+	//vector3 HitNormal;
+	//Object* hitobj;
 
 
+	static bool raycast(vector3& point, vector3& Nr, std::vector<Object*> objList, Object* Obj,
+		vector3* hitpoint, vector3* hitnormal, bool checkall = true);
+	static vector3 ray(vector3 point, vector3 point2);
 
 private:
+	std::vector<Light*> visibleLights;
 	vector3 currentHit;
 	vector3 currentNormal;
 	void rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj);
