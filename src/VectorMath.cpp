@@ -101,6 +101,17 @@ bool vector3::zero() {
 	return false;
 }
 
+void vector3::getvalues(float* out) {
+	out[0] = x;
+	out[1] = y;
+	out[2] = z;
+}
+void vector3::getvalues(int* out) {
+	out[0] = (int)x;
+	out[1] = (int)y;
+	out[2] = (int)z;
+}
+
 
 //***************************************** END OF VECTOR 3 *********************************************//
 
@@ -187,6 +198,15 @@ bool vector2::zero() {
 
 	if (x == 0.0f && y == 0.0f) return true;
 	return false;
+}
+
+void vector2::getvalues(float* out) {
+	out[0] = x;
+	out[1] = y;
+}
+void vector2::getvalues(int* out) {
+	out[0] = (int)x;
+	out[1] = (int)y;
 }
 
 

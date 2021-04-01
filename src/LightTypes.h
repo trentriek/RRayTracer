@@ -15,7 +15,7 @@ private:
 
 class SpotLight : public Light {
 public:
-	SpotLight(vector3 Pos = vector3(0.0f, 0.0f, 0.0f), vector3 c = vector3(255.0f, 255.0f, 255.0f), float i = 0.5f);
+	SpotLight(vector3 Pos = vector3(0.0f, 0.0f, 0.0f), vector3 c = vector3(255.0f, 255.0f, 255.0f), float i = 0.5f, double ca = 3.14f);
 	//~SpotLight();
 	bool isVisible() override;
 	vector3 Ni;

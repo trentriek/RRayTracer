@@ -2,6 +2,7 @@
 #ifndef VECTOR_MATH
 #define VECTOR_MATH
 
+#define PI 3.14159
 struct vector3 {
 
 	float x, y, z;
@@ -20,6 +21,8 @@ struct vector3 {
 	vector3 operator*(const float& scalar);
 	vector3 operator/(const float& scalar);
 	vector3 operator-() const;
+	void getvalues(float* out);
+	void getvalues(int* out);
 	bool zero();
 
 };
@@ -42,6 +45,8 @@ struct vector2 {
 	vector2 operator*(const float& scalar);
 	vector2 operator/(const float& scalar);
 	vector2 operator-() const;
+	void getvalues(float* out);
+	void getvalues(int* out);
 	bool zero();
 };
 

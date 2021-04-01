@@ -8,8 +8,8 @@ Camera::~Camera() {
 }
 
 void Camera::setlook(vector3 up, vector3 lookview) {
-	Up = up;
-	LookView = lookview;
+	Up = up.normalize();
+	LookView = lookview.normalize();
 	n2 = lookview / lookview.magnitude();
 	vector3 V0 = vector3::cross(lookview, up);
 	//if (V0.zero()) n0 = vector3();
@@ -57,8 +57,9 @@ void RRayTracer::Render(Image& output) {
 
 void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) {
 
+	const unsigned short testing = 0;
+
 	color = vector3(0.0, 0.0, 0.0);
-	const unsigned short testing = 1;
 	HitPos = vector3(10000000.0f, 100000000.0f, 10000000.0f);
 	HitNormal = vector3();
 	hit = false; //output hit
@@ -107,15 +108,15 @@ void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) 
 				float t = (0.5f * Cos) + 0.5f;
 				//clamp between 0 and 1
 				clamp(t);
-				
+				dc = Obj->DebugColor;
 				float S = 0.0;
 				//specular if note plane
-				if (Obj->getType() != plane) {
+				//if (Obj->getType() != plane) {
 					S = -ln.z + 2.0f * (ln.x * HitNormal.x + ln.y * HitNormal.y + ln.z * HitNormal.z) * HitNormal.z;
 					if (S < 0) S = 0; if (S > 1) S = 1;
 					float specular_intensity = 0.5;
 					S = S * specular_intensity;
-				}
+				//}
 				vector3 lc = l->color;
 				color.x = color.x + ((dc.x * t) + (lc.x * S)) * l->intensity;
 				if (color.x > 255) color.x = 255;
@@ -127,21 +128,12 @@ void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) 
 				//} //multiply by light intensity
 			}
 			else {
-				/*
-				vector3 lc = l->color;
-				color.x = color.x + ((dc.x * t) + (lc.x * S)) * l->intensity;
-				if (color.x > 255) color.x = 255;
-				color.y = color.y + ((dc.y * t) + (lc.y * S)) * l->intensity;
-				if (color.y > 255) color.y = 255;
-				color.z = color.z + ((dc.z * t) + (lc.z * S)) * l->intensity;
-				if (color.z > 255) color.z = 255;
-				*/
+				
+				color = Obj->material->GetColor(l->out_t, l->out_s);
+
 			}
 
 		}
-		//if (Obj->getType() == sphere) {
-		//	printf("%f. %f, %f, %d \n", color.x, color.y, color.z, Obj->getType());
-		//}
 
 		visibleLights.clear();
 

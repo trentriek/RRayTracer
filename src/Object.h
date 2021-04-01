@@ -5,6 +5,7 @@
 //#include "GraphicsMath.h"
 #include <vector>
 #include <math.h>
+#include "Load_Image.h"
 
 class Material;
 
@@ -25,12 +26,17 @@ public:
 	void setPos(float x = 0.0, float y = 0.0, float z = 0.0);
 	void setPos(vector3 p);
 	Material* material;
-
 	vector3 DebugColor;
+	float out_u;
+	float out_v;
 
 protected:
+	virtual void setUV(vector3 p);
 	vector3 pos;
 	Objtype type;
+	vector3 N0;
+	vector3 N1;
+	vector3 N2;
 };
 
 class Sphere : public Object {
@@ -42,7 +48,7 @@ public:
 	float radius;
 	bool hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& HitN) override;
 private:
-
+	void setUV(vector3 p);
 
 };
 
@@ -54,7 +60,7 @@ public:
 	vector3 Ni;
 	bool hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& HitN) override;
 private:
-
+	void setUV(vector3 p);
 
 };
 
@@ -87,23 +93,23 @@ class Material {
 public:
 	Material(vector3 DC = vector3(100.0f, 100.0f, 100.0f), vector3 RC = vector3(255.0f, 255.0f, 255.0f), float DP = 1.0f, float SP = 0.0f, float TP = 0.0f, float RP = 0.0f);
 	~Material();
-	//image uv map will be here later
 	float dif;
 	float spec;
 	float trans;
 	float reflect;
-	virtual vector3 GetColor(vector3* DC = nullptr, vector3* RC = nullptr, vector3* TC = nullptr, vector3* RFC = nullptr);
+	virtual vector3 GetColor(float dif_i = 1.0f, float spec_i = 0.0f, float trans_i = 0.0f, float reflect_i = 0.0f, float U = 0.0f, float V = 0.0f);
+	void getTexture(const char* imagename);
 	vector3 diffuseC;
 	vector3 specularC;
-	vector3 reflectionC;
 	vector3 transmissionC;
-
+	vector3 reflectionC;
+	bool basefileinput;
+	bool normalfileinput;
+	Image basemap;
+	Image normalmap;
 	
 protected:
-	virtual vector3 Diffuse();
-	virtual vector3 Specular();
-	virtual vector3 Reflection();
-	virtual vector3 Transmission();
+	vector3 temp;
 };
 
 

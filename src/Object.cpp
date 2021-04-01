@@ -8,6 +8,11 @@ Object::Object() {
 	type = none;
 	DebugColor = vector3(100, 100, 100);
 	material = &defaultMat;
+	N0 = vector3(0.0f, 0.0f, 1.0f);
+	N1 = vector3(1.0f, 0.0f, 0.0f);
+	N2 = vector3(0.0f, -1.0f, 0.0f);
+	out_u = -1.0f;
+	out_v = -1.0f;
 }
 
 Object::~Object() {
@@ -19,11 +24,21 @@ Object::Object(vector3 Pos) {
 	pos = Pos;
 	type = none;
 	DebugColor = vector3(100, 100, 100);
+	material = &defaultMat;
+	N0 = vector3(0.0f, 0.0f, 1.0f);
+	N1 = vector3(1.0f, 0.0f, 0.0f);
+	N2 = vector3(0.0f, -1.0f, 0.0f);
+	out_u = -1.0f;
+	out_v = -1.0f;
 }
 
 bool Object::hit(vector3 eye, vector3 Npe, vector3& Hitpos, vector3& HitN) {
 	//printf("object has no type, cannot hit");
 	return false;
+}
+
+void Object::setUV(vector3 p) {
+	//printf("object has no type, no UV");
 }
 
 vector3 Object::getPos() {
@@ -74,12 +89,20 @@ bool Sphere::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 			hitN = (HitPos - pos) / radius;
 			//get normal
 			hitN = hitN.normalize();
+			//v = acos(n2 DOT(Ph - Pi) / radius) / PI
+			//u = acos((n1 DOT(Ph - Pi) / radius) / sin((PI * v)) / 2PI;
+			setUV(HitPos - pos);
 			return true;
 		}
 	}
 
 
 	return false;
+}
+
+void Sphere::setUV(vector3 p) {
+	out_v = acos(vector3::dot(N2, p) / radius) / PI;
+	out_u = acos(vector3::dot(N1, p) / radius) / sin(PI * out_v) / 2 * PI;
 }
 
 
@@ -103,19 +126,20 @@ bool Plane::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 		float th = (-surface / vector3::dot(Ni, Npe));
 		HitPos = (Npe * th);
 		hitN = Ni;
+		setUV(pos);
 		return true;
 	}
 	return false;
 }
 
+void Plane::setUV(vector3 p) {
+	out_v = -1.0f;
+	out_u = -1.0f;
+}
+
 
 //********************Light******************
 
-//Light::Light() : Object() {
-//	color = vector3(255.0f, 255.0f, 255.0f);
-//	intensity = 0.5f;
-//	type = pointlight;
-//}
 Light::Light(vector3 Pos, vector3 c, float i) : Object(Pos) {
 	color = c;
 	intensity = i;
@@ -123,24 +147,22 @@ Light::Light(vector3 Pos, vector3 c, float i) : Object(Pos) {
 }
 bool Light::isVisible() {
 	Nlh = RRayTracer::ray(pos, HitPos);
-	HitPosOffset = HitPos + HitNormal/5;
+	HitPosOffset = HitPos + HitNormal / 5;
 	ln = HitPos - pos;
+	out_t = -1.0f;
 	ln = -ln.normalize();
-	if (!RRayTracer::raycast(HitPosOffset, Nlh , raytracer->objList, &o, &hitp, &hitn, false)) {
+	if  ( !RRayTracer::raycast(HitPosOffset, Nlh, raytracer->objList, &o, &hitp, &hitn, false) ||
+		vector3::distance(hitp, pos) > vector3::distance(HitPosOffset, pos) ||
+		vector3::distance(hitp, pos) < 0
+		) 
+	{
 		Cos = vector3::dot(ln, HitNormal);
 		out_t = (0.5f * Cos) + 0.5f;
 		out_s = -Nlh.z + 2.0f * (vector3::dot(Nlh, HitNormal)) * HitNormal.z;
 		if (out_s < 0) out_s = 0; if (out_s > 1) out_s = 1;
-		return true;
 	}
-	else if (vector3::distance(hitp, pos) > vector3::distance(HitPosOffset, pos) || vector3::distance(hitp, pos) < 0) {
-		Cos = vector3::dot(ln, HitNormal);
-		out_t = (0.5f * Cos) + 0.5f;
-		out_s = -Nlh.z + 2.0f * (vector3::dot(Nlh, HitNormal)) * HitNormal.z;
-		if (out_s < 0) out_s = 0; if (out_s > 1) out_s = 1;
-		return true;
-	}
-	if (out_t) return true;
+
+	if (out_t > 0) return true;
 	return false;
 }
 
@@ -153,52 +175,36 @@ Material::Material(vector3 DC, vector3 RC, float DP, float SP, float TP, float R
 	spec = SP;
 	trans = TP;
 	reflect = RP;
-	//try {
-
-		//if ((dif + spec + trans + reflect) > 1.0f) {
-		//	std::printf("the material's intensity value cannot exceed 1");
-		//	throw 1;
-		//}
-	//}
-	//catch (int e) {
-
-	//}
+	basefileinput = false;
+	normalfileinput = false;
 }
 Material::~Material() {
 
 }
 
-vector3 Material::GetColor(vector3* DC, vector3* RC, vector3* TC, vector3* RFC)
+vector3 Material::GetColor(float dif_i, float spec_i, float trans_i, float reflect_i, float U, float V)
 {
-	vector3 output;
-		if ( dif > 0.0001f) output = output + Diffuse() * dif;
-		if (spec > 0.0001f) output = output + Specular() * spec;
-		if (trans > 0.0001f) output = output + Transmission() * trans;
-		if (reflect > 0.0001f) output = output + Reflection() * reflect;
-		return output;
+	//if there's a mapping, set the diffuse, specular, etc to be whatever mapping you choose.
+	if (basefileinput) {
+		//Hitpos, HitObj->pos, 
+	}
+	//if there's a normal file, modify the output color to reflect the normal at that position
+	if (normalfileinput) {
+
+	}
+	
+	temp = (diffuseC * dif * dif_i) + (specularC * spec * spec_i) + (diffuseC * dif * trans_i) + (specularC * spec * reflect_i);
+
+	if (temp.x > 255) temp.x = 255;
+	if (temp.y > 255) temp.y = 255;
+	if (temp.z > 255) temp.z = 255;
+	return temp;
 }
-vector3 Material::Diffuse(){
-	vector3 x = HitPos;
-	//printf("%d", raytracer->lightList.size());
-	vector3 ln = HitPos - raytracer->lightList[0]->getPos();
-	ln = -ln.normalize();
-	float Cos = vector3::dot(ln, HitNormal);
-	float t = (0.5f * Cos) + 0.5f;
-	//clamp between 0 and 1
-	clamp(t);
-	return diffuseC * t;
+
+void Material::getTexture(const char* imagename){
+	basemap = Image(imagename);
+	basefileinput = true;
 }
-vector3 Material::Specular() {
-	vector3 ln = HitPos - raytracer->lightList[0]->getPos();
-	float S = -ln.z + 2.0f * (ln.x * HitNormal.x + ln.y * HitNormal.y + ln.z * HitNormal.z) * HitNormal.z;
-	if (S < 0) S = 0; if (S > 1) S = 1;
-	return specularC * S;
-}
-vector3 Material::Reflection() {
-	return vector3();
-}
-vector3 Material::Transmission() {
-	return vector3();
-}
+
 
 

@@ -5,19 +5,28 @@ AreaLight::AreaLight(vector3 Pos, vector3 c, float i): Light(Pos, c, i) {
 	type = arealight;
 }
 bool AreaLight::isVisible() {
-	float p = 1 / (width * height);
+	float p = 1 / (float)(width * height);
+	out_t = 0.0f;
+	out_s = 0.0f;
 	for (int j = 0; j < height; j++) {
 		for (int i = 0; i < width; i++) {
 			PP = P00 + (n0 * i) + (n1 * j);
-			Nlh = RRayTracer::ray(pos, HitPos);
-			if (!RRayTracer::raycast(HitPosOffset, Nlh, raytracer->objList, &o, &hitp, &hitn, false)) {
-				out_t += vector3::dot(Nlh, HitNormal); //find t here
-				out_s += -Nlh.z + 2.0f * (vector3::dot(Nlh, HitNormal)) * HitNormal.z;
+			Nlh = RRayTracer::ray(PP, HitPos);
+			HitPosOffset = HitPos + HitNormal / 5;
+			ln = HitPos - PP;
+			
+			ln = -ln.normalize();
+			if (!RRayTracer::raycast(HitPosOffset, Nlh, raytracer->objList, &o, &hitp, &hitn, false) ||
+				vector3::distance(hitp, PP) > vector3::distance(HitPosOffset, PP) ||
+				vector3::distance(hitp, PP) < 0
+				)
+			{
+				Cos = vector3::dot(ln, HitNormal);
+				out_t += ( (0.5f * Cos) + 0.5f) * p;
+				out_s += (-Nlh.z + 2.0f * (vector3::dot(Nlh, HitNormal)) * HitNormal.z) * p;
+				if (out_s < 0) out_s = 0; if (out_s > 1) out_s = 1;
 			}
-			else if (vector3::distance(hitp, pos) > vector3::distance(HitPosOffset, pos) || vector3::distance(hitp, pos) < 0) {
-				out_t += vector3::dot(Nlh, HitNormal);
-				out_s += -Nlh.z + 2.0f * (vector3::dot(Nlh, HitNormal)) * HitNormal.z;
-			}
+
 		}
 	}
 	if (out_t < 0.01) return false;
@@ -26,27 +35,31 @@ bool AreaLight::isVisible() {
 
 
 
-SpotLight::SpotLight(vector3 Pos, vector3 c, float i) : Light(Pos, c, i) {
+SpotLight::SpotLight(vector3 Pos, vector3 c, float i, double ca) : Light(Pos, c, i) {
 	type = spotlight;
+	coneangle = ca;
 }
-bool SpotLight::isVisible(){
-	/*
+bool SpotLight::isVisible() {
 	Nlh = RRayTracer::ray(pos, HitPos);
 	HitPosOffset = HitPos + HitNormal / 5;
-	//Object o;
-	//vector3 hitp;
-	//vector3 hitn;
-	if (!RRayTracer::raycast(HitPosOffset, Nlh, raytracer->objList, &o, &hitp, &hitn, false)) {
-		if ( ( vector3::dot(Nlh, Ni) - cos( (coneangle/2) ) <= 0 ) {
-
+	ln = HitPos - pos;
+	out_t = -1.0f;
+	ln = -ln.normalize();
+	if (!RRayTracer::raycast(HitPosOffset, Nlh, raytracer->objList, &o, &hitp, &hitn, false) ||
+		vector3::distance(hitp, pos) > vector3::distance(HitPosOffset, pos) ||
+		vector3::distance(hitp, pos) < 0
+		)
+	{
+		//spotlight: add extra condition to point light to check for angle
+		if (vector3::dot(Nlh, Ni) - cos((coneangle / 2)) <= 0) {
+			Cos = vector3::dot(ln, HitNormal);
+				out_t = (0.5f * Cos) + 0.5f;
+				out_s = -Nlh.z + 2.0f * (vector3::dot(Nlh, HitNormal)) * HitNormal.z;
+				if (out_s < 0) out_s = 0; if (out_s > 1) out_s = 1;
 		}
 	}
-	else if (vector3::distance(hitp, pos) > vector3::distance(HitPosOffset, pos) || vector3::distance(hitp, pos) < 0) {
-		if ( (vector3::dot(Nlh, Ni) - cos((coneangle / 2)) <= 0 ) {
 
-		}
-	}
-	*/
+	if (out_t > 0) return true;
 	return false;
 }
 
@@ -56,16 +69,20 @@ DirectionalLight::DirectionalLight(vector3 Pos, vector3 c, float i) : Light(Pos,
 }
 
 bool DirectionalLight::isVisible() {
-	vector3 Nlh = Ni;
-	vector3 HitPosOffset = HitPos + HitNormal / 5;
-	Object o;
-	vector3 hitp;
-	vector3 hitn;
-	if (!RRayTracer::raycast(HitPosOffset, Nlh, raytracer->objList, &o, &hitp, &hitn, false)) {
-		return true;
+	Nlh = -Ni;
+	HitPosOffset = HitPos + HitNormal / 5;
+	out_t = -1.0f;
+	if (!RRayTracer::raycast(HitPosOffset, Nlh, raytracer->objList, &o, &hitp, &hitn, false) ||
+		vector3::distance(hitp, pos) > vector3::distance(HitPosOffset, pos) ||
+		vector3::distance(hitp, pos) < 0
+		)
+	{
+		Cos = vector3::dot(Nlh, HitNormal);
+		out_t = (0.5f * Cos) + 0.5f;
+		out_s = -Nlh.z + 2.0f * (vector3::dot(Nlh, HitNormal)) * HitNormal.z;
+		if (out_s < 0) out_s = 0; if (out_s > 1) out_s = 1;
 	}
-	else if (vector3::distance(hitp, pos) > vector3::distance(HitPosOffset, pos) || vector3::distance(hitp, pos) < 0) {
-		return true;
-	}
+
+	if (out_t > 0) return true;
 	return false;
 }
