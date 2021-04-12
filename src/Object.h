@@ -27,6 +27,7 @@ public:
 	void setPos(vector3 p);
 	Material* material;
 	vector3 DebugColor;
+	void setview(vector3 up, vector3 look);
 	float out_u;
 	float out_v;
 
@@ -109,7 +110,11 @@ public:
 	Image normalmap;
 	
 protected:
+	//helper values
 	vector3 temp;
+	int tempinfrompicture[4];
+	float Utexpos;
+	float Vtexpos;
 };
 
 

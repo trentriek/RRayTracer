@@ -56,6 +56,19 @@ Objtype Object::getType() {
 	return type;
 }
 
+void Object::setview(vector3 up, vector3 look) {
+	up = up.normalize();
+	look = look.normalize();
+	N2 = look; // look.magnitude();
+	vector3 V0 = vector3::cross(look, up);
+	//if (V0.zero()) n0 = vector3();
+	N0 = V0 / V0.magnitude();
+	N1 = vector3::cross(N0, N2);
+	//vector3 Pc = pos + (N2 * focus_dist);
+	//vector3 temp = (n0 * width + n1 * height);
+	//P00 = Pc - (n0 * width + n1 * height) / 2;
+}
+
 //********************Sphere******************
 Sphere::Sphere() :Object() {
 	type = sphere;
@@ -81,16 +94,12 @@ bool Sphere::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 	if (c >= 0.0f) {
 		float b = vector3::dot(Npe, ie);
 		float delta = (b * b) - c;  //tri is the discriminant
-		//printf("%f \n", tri);
-		//printf("%f , %f, %f", Npe.x, Npe.y, Npe.z);
 		if (b >= 0.000f && delta >= 0.000f) {
 			float th = b - sqrt(delta);
 			HitPos = eye + (Npe * th);
 			hitN = (HitPos - pos) / radius;
 			//get normal
 			hitN = hitN.normalize();
-			//v = acos(n2 DOT(Ph - Pi) / radius) / PI
-			//u = acos((n1 DOT(Ph - Pi) / radius) / sin((PI * v)) / 2PI;
 			setUV(HitPos - pos);
 			return true;
 		}
@@ -102,7 +111,7 @@ bool Sphere::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 
 void Sphere::setUV(vector3 p) {
 	out_v = acos(vector3::dot(N2, p) / radius) / PI;
-	out_u = acos(vector3::dot(N1, p) / radius) / sin(PI * out_v) / 2 * PI;
+	out_u = acos(vector3::dot(N1, p) / radius) / sin(PI * out_v) / (2 * PI);
 }
 
 
@@ -115,26 +124,47 @@ Plane::Plane() : Object() {
 Plane::Plane(vector3 Pos, vector3 Normal) : Object(Pos) {
 	type = plane;
 	Ni = Normal;
+	N2 = Ni;
+
 }
 
 bool Plane::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 
+	float denom = vector3::dot(Ni, Npe);
+	if (abs(denom) > 0.0001f) {
+		float t = (vector3::dot((pos - eye), Ni)) / denom;
+		if (t >= 0) {
+			HitPos = (Npe * t);
+			hitN = Ni;
+			setUV(HitPos - pos);
+			return true;
+		}
+	}
+	return false;
+	/*
 	vector3 ei = (eye - pos);
-	float surface = vector3::dot(Ni, ei); 
+	float surface = vector3::dot(Ni, ei);
 	float surface2 = vector3::dot(Ni, Npe);
 	if (surface2 < 0) {
 		float th = (-surface / vector3::dot(Ni, Npe));
 		HitPos = (Npe * th);
 		hitN = Ni;
-		setUV(pos);
+		setUV(HitPos - pos);
 		return true;
 	}
 	return false;
+
+	*/
 }
 
 void Plane::setUV(vector3 p) {
-	out_v = -1.0f;
-	out_u = -1.0f;
+	if (material->basefileinput == true) {
+		out_u = vector3::dot(N0, p) / material->basemap.getWidth();
+		while (out_u < 0) out_u = out_u + 1;
+		out_v = vector3::dot(N1, p) / material->basemap.getHeight();
+		while (out_v < 0) out_v = out_v + 1;
+		//printf("%f, %f \n", out_u, out_v);
+	}
 }
 
 
@@ -186,7 +216,10 @@ vector3 Material::GetColor(float dif_i, float spec_i, float trans_i, float refle
 {
 	//if there's a mapping, set the diffuse, specular, etc to be whatever mapping you choose.
 	if (basefileinput) {
-		//Hitpos, HitObj->pos, 
+		Utexpos = U * basemap.getWidth();
+		Vtexpos = V * basemap.getHeight();
+		basemap.getPixel(Utexpos, Vtexpos, tempinfrompicture);
+		diffuseC.setvalues(tempinfrompicture);
 	}
 	//if there's a normal file, modify the output color to reflect the normal at that position
 	if (normalfileinput) {

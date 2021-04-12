@@ -63,6 +63,8 @@ private:
 	void rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj);
 	int objnum;
 
+	void testcolor(Object* Obj, Light* l, vector3& color);
+
 };
 
 

@@ -10,7 +10,7 @@ struct vector3 {
 	vector3(float a = 0.0, float b = 0.0, float c = 0.0);
 	vector3 normalize();
 	float magnitude();
-	static float dot(vector3& a, vector3& b);
+	static float dot(vector3 a, vector3 b);
 	static vector3 cross(vector3& a, vector3& b);
 	static float distance(vector3& a, vector3& b);
 	static float angle(vector3& a, vector3& b);
@@ -23,7 +23,10 @@ struct vector3 {
 	vector3 operator-() const;
 	void getvalues(float* out);
 	void getvalues(int* out);
+	void setvalues(float* in);
+	void setvalues(int* in);
 	bool zero();
+
 
 };
 
@@ -34,7 +37,7 @@ struct vector2 {
 	vector2(float a = 0.0, float b = 0.0);
 	vector2 normalize();
 	float magnitude();
-	static float dot(vector2& a, vector2& b);
+	static float dot(vector2 a, vector2 b);
 	//static vector2 cross(vector2& a, vector2& b);
 	static float distance(vector2& a, vector2& b);
 	static float angle(vector2& a, vector2& b);
@@ -47,6 +50,8 @@ struct vector2 {
 	vector2 operator-() const;
 	void getvalues(float* out);
 	void getvalues(int* out);
+	void setvalues(float* in);
+	void setvalues(int* in);
 	bool zero();
 };
 

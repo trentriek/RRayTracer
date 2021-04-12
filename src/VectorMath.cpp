@@ -52,7 +52,7 @@ vector3 vector3::operator/(const vector3& b) {
 	return temp;
 }
 
-float vector3::dot(vector3& a, vector3& b) {
+float vector3::dot(vector3 a, vector3 b) {
 	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
@@ -112,6 +112,17 @@ void vector3::getvalues(int* out) {
 	out[2] = (int)z;
 }
 
+void vector3::setvalues(float* in) {
+	 x = in[0];
+	 y = in[1];
+	 z = in[2];
+}
+void vector3::setvalues(int* in) {
+	x = (float)in[0];
+	y = (float)in[1];
+	z = (float)in[2];
+}
+
 
 //***************************************** END OF VECTOR 3 *********************************************//
 
@@ -160,7 +171,7 @@ vector2 vector2::operator/(const vector2& b) {
 	return temp;
 }
 
-float vector2::dot(vector2& a, vector2& b) {
+float vector2::dot(vector2 a, vector2 b) {
 	return (a.x * b.x) + (a.y * b.y);
 }
 
@@ -207,6 +218,15 @@ void vector2::getvalues(float* out) {
 void vector2::getvalues(int* out) {
 	out[0] = (int)x;
 	out[1] = (int)y;
+}
+
+void vector2::setvalues(float* in) {
+	x = in[0];
+	y = in[1];
+}
+void vector2::setvalues(int* in) {
+	x = (float)in[0];
+	y = (float)in[1];
 }
 
 
