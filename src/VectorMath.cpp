@@ -72,11 +72,11 @@ vector3 vector3::operator/(const float& scalar) {
 	return temp;
 }
 
-float vector3::distance(vector3& a, vector3& b) {
+float vector3::distance(vector3 a, vector3 b) {
 	return sqrt(pow(b.x - a.x, 2) + pow(b.y - a.y, 2) + pow(b.z - a.z, 2));
 }
 
-float vector3::angle(vector3& a, vector3& b) {
+float vector3::angle(vector3 a, vector3 b) {
 	a = a.normalize();
 	b = b.normalize();
 	return acos(dot(a, b));
@@ -88,7 +88,7 @@ vector3 vector3::operator-() const {
 	return temp;
 }
 
-vector3 vector3::cross(vector3& a, vector3& b) {
+vector3 vector3::cross(vector3 a, vector3 b) {
 	vector3 temp;
 	temp.x = a.y * b.z - a.z * b.y;
 	temp.y = a.z * b.x - a.x * b.z;
@@ -189,11 +189,11 @@ vector2 vector2::operator/(const float& scalar) {
 	return temp;
 }
 
-float vector2::distance(vector2& a, vector2& b) {
+float vector2::distance(vector2 a, vector2 b) {
 	return sqrt(pow(b.x - a.x, 2) + pow(b.y - a.y, 2));
 }
 
-float vector2::angle(vector2& a, vector2& b) {
+float vector2::angle(vector2 a, vector2 b) {
 	a = a.normalize();
 	b = b.normalize();
 	return acos(dot(a, b));

@@ -48,6 +48,7 @@ public:
 	~Sphere();
 	float radius;
 	bool hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& HitN) override;
+	bool isinverted;
 private:
 	void setUV(vector3 p);
 

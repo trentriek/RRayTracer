@@ -73,11 +73,13 @@ void Object::setview(vector3 up, vector3 look) {
 Sphere::Sphere() :Object() {
 	type = sphere;
 	radius = 1.0f;
+	isinverted = false;
 }
 
 Sphere::Sphere(vector3 Pos, float r) : Object(Pos) {
 	type = sphere;
 	radius = r;
+	isinverted = false;
 }
 
 
@@ -159,11 +161,25 @@ bool Plane::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 
 void Plane::setUV(vector3 p) {
 	if (material->basefileinput == true) {
+		/*
 		out_u = vector3::dot(N0, p) / material->basemap.getWidth();
 		while (out_u < 0) out_u = out_u + 1;
 		out_v = vector3::dot(N1, p) / material->basemap.getHeight();
 		while (out_v < 0) out_v = out_v + 1;
+		*/
 		//printf("%f, %f \n", out_u, out_v);
+
+		//vector3 a = vector3::cross(Ni, vector3(1,0,0));
+		//vector3 b = vector3::cross(Ni, vector3(0, 1, 0));
+		//vector3 max = vector3::dot(a, a) < vector3::dot(b, b) ? b : a;
+		//vector3 c = vector3::cross(Ni, vector3(0, 0, 1));
+		//max = vector3::dot(max, max) < vector3::dot(c, c) ? c : max;
+		//max = max.normalize();
+		//vector3 v = vector3::cross(Ni, max);
+		//out_u = vector3::dot(max, HitPos.normalize());
+		//while (out_u < 0) out_u = out_u + 1;
+		//out_v = vector3::dot(v, HitPos.normalize());
+		//while (out_v < 0) out_v = out_v + 1;
 	}
 }
 

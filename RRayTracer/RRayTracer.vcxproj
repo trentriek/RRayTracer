@@ -141,6 +141,7 @@
     <ClCompile Include="..\src\Load_Image.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\Object.cpp" />
+    <ClCompile Include="..\src\PolygonMesh.cpp" />
     <ClCompile Include="..\src\RRayTracer.cpp" />
     <ClCompile Include="..\src\VectorMath.cpp" />
   </ItemGroup>
