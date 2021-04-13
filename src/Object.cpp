@@ -161,12 +161,12 @@ bool Plane::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 
 void Plane::setUV(vector3 p) {
 	if (material->basefileinput == true) {
-		/*
+		float temp = vector3::dot(N0, p);
 		out_u = vector3::dot(N0, p) / material->basemap.getWidth();
 		while (out_u < 0) out_u = out_u + 1;
-		out_v = vector3::dot(N1, p) / material->basemap.getHeight();
+		out_v = vector3::dot(-N1, p) / material->basemap.getHeight();
 		while (out_v < 0) out_v = out_v + 1;
-		*/
+		
 		//printf("%f, %f \n", out_u, out_v);
 
 		//vector3 a = vector3::cross(Ni, vector3(1,0,0));

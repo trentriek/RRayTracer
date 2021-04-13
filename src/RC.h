@@ -5,6 +5,7 @@
 #include "Object.h"
 #include "RRayTracer.h"
 #include "LightTypes.h"
+#include "PolygonMesh.h"
 
 
 	extern RRayTracer* raytracer;

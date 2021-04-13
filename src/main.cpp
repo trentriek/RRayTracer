@@ -18,6 +18,14 @@ int height = 540;
 
 using namespace std;
 int main(int args, char** argv) {
+	/*
+	triangle test;
+	test.p0 = vector3(35, 11, -49);
+	test.p1 = vector3(43, 21, -45);
+	test.p2 = vector3(48, 26, -41);
+	vector3 op;
+	test.barycentric(vector3(58.47, 39.35, -36.08), op);
+	*/
 
 	Image output = Image(width, height);
 	Material mat1 = Material(vector3(255.0f, 0.0f, 0.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.5f);
@@ -25,7 +33,7 @@ int main(int args, char** argv) {
 	Material mat3 = Material(vector3(0.0f, 0.0f, 255.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.0f);
 	Material backmat = Material(vector3(130.0f, 150.0f, 10.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.0f);
 	backmat.basefileinput = true;
-	backmat.basemap.load("../resources/uvs/koolshadow.jpg");
+	backmat.basemap.load("../resources/uvs/bw.png");
 	Material worldmat = Material(vector3(255.0f, 0.0f, 0.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.5f);
 	worldmat.basemap.load("../resources/uvs/earthmap.png");
 	worldmat.basefileinput = true;
