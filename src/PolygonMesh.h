@@ -20,6 +20,7 @@ class PolygonMesh : public Object {
 public:
 	std::vector<triangle> polygons;
 	bool hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN);
+	bool loadmesh(unsigned char* filename);
 
 private:
 
