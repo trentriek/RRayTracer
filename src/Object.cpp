@@ -191,7 +191,8 @@ Light::Light(vector3 Pos, vector3 c, float i) : Object(Pos) {
 	intensity = i;
 	type = pointlight;
 }
-bool Light::isVisible() {
+// vector3 HitPos, vector3 HitNormal
+bool Light::isVisible(vector3 HitPos, vector3 HitNormal, vector3 Pe) {
 	Nlh = RRayTracer::ray(pos, HitPos);
 	HitPosOffset = HitPos + HitNormal / 5;
 	ln = HitPos - pos;
@@ -242,7 +243,7 @@ vector3 Material::GetColor(float dif_i, float spec_i, float trans_i, float refle
 
 	}
 	
-	temp = (diffuseC * dif * dif_i) + (specularC * spec * spec_i) + (diffuseC * dif * trans_i) + (specularC * spec * reflect_i);
+	temp = (diffuseC * dif * dif_i) + (specularC * spec * spec_i) + (transmissionC * trans * trans_i) + (reflectionC * reflect * reflect_i);
 
 	if (temp.x > 255) temp.x = 255;
 	if (temp.y > 255) temp.y = 255;

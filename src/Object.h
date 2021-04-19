@@ -74,7 +74,7 @@ public:
 	Light(vector3 Pos = vector3(0.0f, 0.0f, 0.0f), vector3 c = vector3(255.0f, 255.0f, 255.0f), float i = 0.5f);
 	float intensity;
 	vector3 color;
-	virtual bool isVisible();
+	virtual bool isVisible(vector3 HitPos, vector3 HitNormal, vector3 Pe);
 	float out_t;
 	float out_s;
 protected:

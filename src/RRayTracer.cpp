@@ -81,7 +81,7 @@ void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) 
 	}
 	for (Light* l : lightList) {
 		
-		if (l->isVisible())
+		if (l->isVisible(HitPos, HitNormal, Pe)) //NEED TO CHANGE; Rmove the globals
 		{
 			visibleLights.push_back(l);
 		}
@@ -100,7 +100,11 @@ void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) 
 				testcolor(Obj, l, color);
 			}
 			else {
-				color = Obj->material->GetColor(l->out_t, l->out_s, 0.0f, 0.0f, Obj->out_u, Obj->out_v);
+				//Obj->material->transmissionC = ayayayda
+				color += ( Obj->material->GetColor(l->out_t, l->out_s, 0.0f, 0.0f, Obj->out_u, Obj->out_v) * l->intensity);
+				if (color.x > 255) color.x = 255;
+				if (color.y > 255) color.y = 255;
+				if (color.z > 255) color.z = 255;
 			}
 
 		}
@@ -116,7 +120,7 @@ void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) 
 
 }
 
-bool RRayTracer::raycast(vector3& point, vector3& Nr, std::vector<Object*> objList, Object* Obj, vector3* hitpoint, vector3* hitnormal, bool checkall) {
+bool RRayTracer::raycast(vector3& point, vector3& Nr, std::vector<Object*> objList, Object* Obj, vector3* hitpoint, vector3* hitnormal, vector3 Pe, bool checkall) {
 	vector3 currentHit;
 	vector3 currentNormal;
 	*hitpoint = vector3(10000000.0f, 100000000.0f, 10000000.0f);

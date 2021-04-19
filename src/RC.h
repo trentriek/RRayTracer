@@ -9,11 +9,11 @@
 
 
 	extern RRayTracer* raytracer;
-	extern vector3 Npe;
-	extern vector3 Pe;
-	extern vector3 HitPos;
-	extern vector3 HitNormal;
-	extern Object* hitobj;
+	//extern vector3 Npe;           removed these, they are located in the RRayTracer
+	//extern vector3 Pe;
+	//extern vector3 HitPos;
+	//extern vector3 HitNormal;
+	//extern Object* hitobj;
 	extern Camera* CurrentCam;
 	extern Material defaultMat;
 

@@ -30,6 +30,13 @@ vector3 vector3::operator+(const vector3& b) {
 	return temp;
 }
 
+vector3 vector3::operator+=(const vector3& b) {
+	x += b.x;
+	y += b.y;
+	z += b.z;
+	return *this;
+}
+
 vector3 vector3::operator-(const vector3& b) {
 	vector3 temp;
 	temp.x = x - b.x;

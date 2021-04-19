@@ -45,15 +45,15 @@ public:
 
 
 	//helper values placed within the class declaration for quick access - moved to render cache 
-	//vector3 Npe;
-	//vector3 Pe;
-	//vector3 HitPos;
-	//vector3 HitNormal;
-	//Object* hitobj;
+	vector3 Npe;
+	vector3 Pe;
+	vector3 HitPos;
+	vector3 HitNormal;
+	Object* hitobj;
 
 
 	static bool raycast(vector3& point, vector3& Nr, std::vector<Object*> objList, Object* Obj,
-		vector3* hitpoint, vector3* hitnormal, bool checkall = true);
+		vector3* hitpoint, vector3* hitnormal, vector3 Pe, bool checkall = true);
 	static vector3 ray(vector3 point, vector3 point2);
 
 private:

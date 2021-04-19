@@ -4,21 +4,18 @@
 #include "RC.h"
 
 RRayTracer* raytracer;
-vector3 Npe;
-vector3 Pe;
-vector3 HitPos;
-vector3 HitNormal;
-Object* hitobj;
 Camera* CurrentCam;
-Material defaultMat;
+Material defaultMat = Material(vector3(255.0f, 0.0f, 0.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.5f);
 const char* outName = "../resources/output.png";
+const char* cubefile = "../resources/objs/cube.obj";
+const char* bunnyfile = "../resources/objs/bunny.obj";
 int width = 960;
 int height = 540;
 
 
 using namespace std;
 int main(int args, char** argv) {
-	/*
+	/*s
 	triangle test;
 	test.p0 = vector3(35, 11, -49);
 	test.p1 = vector3(43, 21, -45);
@@ -44,7 +41,7 @@ int main(int args, char** argv) {
 	RRayTracer rt;
 	rt.persp = &persp;
 	
-	//Material
+
 	Sphere sphereone = Sphere(vector3(0.0f, 0.0f, -6.0f), 0.5f);
 	sphereone.DebugColor = vector3(255.0f, 0.0f, 0.0f);
 	sphereone.material = &worldmat;
@@ -54,6 +51,17 @@ int main(int args, char** argv) {
 	Sphere spherethree = Sphere(vector3(2.0f, 1.0f, -4.0f), 0.5f);
 	spherethree.DebugColor = vector3(0.0f, 0.0f, 255.0f);
 	spherethree.material = &mat1;
+
+	PolygonMesh Triangle = PolygonMesh(vector3(0.0f, 0.0f, -6.0f));
+	triangle temp = triangle(
+		vector3(0.5f, -0.5f, -6.5f),
+		vector3(-0.5f, -0.5f, -6.5f),
+		vector3(-0.5f, 0.5f, -6.5f)
+	);
+	Triangle.polygons.push_back(temp);
+
+	PolygonMesh cube = PolygonMesh(vector3(0.0f, 0.0f, -6.0f));
+	cube.loadmesh(cubefile);
 
 	
 	Plane backplane = Plane(vector3(0.0f, 0.0f, -100.0f), vector3(0.0f, 0.0f, 1.0f));
@@ -66,8 +74,8 @@ int main(int args, char** argv) {
 	
 	Light lightOne = Light(vector3(4.0f, -1.0f, -3.0f));
 	lightOne.intensity = 1.0f;
-	Light lightTwo = Light(vector3(-2.0f, -4.0f, -5.0f));
-	lightTwo.intensity = 1.0f;
+	Light lightTwo = Light(vector3(2.0f, -4.0f, -5.0f));
+	lightTwo.intensity = 0.5f;
 
 	DirectionalLight Sun = DirectionalLight(vector3(-50.0f, 100.0f, -3.0f), vector3(0, 0, 200), 1.0f);
 	Sun.Ni = vector3(-1.0, 0.0, 0.0);
@@ -85,12 +93,13 @@ int main(int args, char** argv) {
 	rt.objList.push_back(&sphereone);
 	rt.objList.push_back(&spheretwo);
 	rt.objList.push_back(&spherethree);
-
-	rt.objList.push_back(&backplane);
-	rt.objList.push_back(&leftplane);
+	//rt.objList.push_back(&cube);
+	//rt.objList.push_back(&Triangle);
+	//rt.objList.push_back(&backplane);
+	//rt.objList.push_back(&leftplane);
 
 	rt.lightList.push_back(&lightOne); //create and add lights
-	//rt.lightList.push_back(&lightTwo);
+	rt.lightList.push_back(&lightTwo);
 	//rt.lightList.push_back(&Sun);
 	//rt.lightList.push_back(&Show);
 	//rt.lightList.push_back(&area);

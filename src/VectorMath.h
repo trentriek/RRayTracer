@@ -15,6 +15,7 @@ struct vector3 {
 	static float distance(vector3 a, vector3 b);
 	static float angle(vector3 a, vector3 b);
 	vector3 operator+(const vector3& b);
+	vector3 operator+=(const vector3& b);
 	vector3 operator-(const vector3& b);
 	vector3 operator*(const vector3& b);
 	vector3 operator/(const vector3& b);
@@ -42,6 +43,7 @@ struct vector2 {
 	static float distance(vector2 a, vector2 b);
 	static float angle(vector2 a, vector2 b);
 	vector2 operator+(const vector2& b);
+	vector2 operator+=(const vector3& b);
 	vector2 operator-(const vector2& b);
 	vector2 operator*(const vector2& b);
 	vector2 operator/(const vector2& b);

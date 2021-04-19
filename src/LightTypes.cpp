@@ -4,7 +4,7 @@
 AreaLight::AreaLight(vector3 Pos, vector3 c, float i): Light(Pos, c, i) {
 	type = arealight;
 }
-bool AreaLight::isVisible() {
+bool AreaLight::isVisible(vector3 HitPos, vector3 HitNormal, vector3 Pe) {
 	//float p = 1 / (float)(width * height);
 	out_t = 0.0f;
 	out_s = 0.0f;
@@ -29,8 +29,8 @@ bool AreaLight::isVisible() {
 			}
 			else
 			{
-				out_t += 1;
-				out_t += 0;
+				//out_t += 1;
+				//out_t += 0;
 			}
 
 		}
@@ -50,7 +50,7 @@ SpotLight::SpotLight(vector3 Pos, vector3 c, float i, double ca) : Light(Pos, c,
 	type = spotlight;
 	coneangle = ca;
 }
-bool SpotLight::isVisible() {
+bool SpotLight::isVisible(vector3 HitPos, vector3 HitNormal, vector3 Pe) {
 	Nlh = RRayTracer::ray(pos, HitPos);
 	HitPosOffset = HitPos + HitNormal / 5;
 	ln = HitPos - pos;
@@ -81,7 +81,7 @@ DirectionalLight::DirectionalLight(vector3 Pos, vector3 c, float i) : Light(Pos,
 	type = directionallight;
 }
 
-bool DirectionalLight::isVisible() {
+bool DirectionalLight::isVisible(vector3 HitPos, vector3 HitNormal, vector3 Pe) {
 	Nlh = -Ni;
 	HitPosOffset = HitPos + HitNormal / 5;
 	out_t = -1.0f;
