@@ -41,15 +41,8 @@ public:
 	std::vector<Object*> objList;
 	std::vector<Light*> lightList;
 	void Render(Image& output);
-
-
-
-	//helper values placed within the class declaration for quick access
-	vector3 Npe;
-	vector3 Pe;
-	vector3 HitPos;
-	vector3 HitNormal;
-	Object* hitobj;
+	//the amount of samples (approximatly) per bounce; after 10 samples it adds russian roullete. Well, not yet but I want it to add that.
+	int sampleamount;
 
 
 	static bool raycast(vector3& point, vector3& Nr, std::vector<Object*> objList, Object* Obj,
@@ -61,9 +54,14 @@ private:
 	vector3 currentHit;
 	vector3 currentNormal;
 	bool rayTrace(vector3& ray, vector3& color, Object* Obj);
-	int objnum;
-
 	void testcolor(Object* Obj, Light* l, vector3& color);
+
+	//helper values placed within the class declaration for quick access
+	vector3 Npe;
+	vector3 Pe;
+	vector3 HitPos;
+	vector3 HitNormal;
+	Object* hitobj;
 
 };
 

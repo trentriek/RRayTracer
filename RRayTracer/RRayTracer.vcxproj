@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\Fresnel.h" />
     <ClInclude Include="..\src\GraphicsMath.h" />
     <ClInclude Include="..\src\LightTypes.h" />
     <ClInclude Include="..\src\Load_Image.h" />

@@ -29,7 +29,7 @@ namespace fresnel {
 
 		theta_i = angle(V, N);
 		theta_t = snells(n1, n2, theta_i);
-		theta_r = reflection_angle(V, N);
+		theta_r = angle(V, N); //NEED TO CHANGE
 
 		double Rp, Rs, R = 0.0;
 		/********needs to be updated!*******/

@@ -1,4 +1,5 @@
 #include "RC.h"
+#include "Fresnel.h"
 Camera::Camera(vector3 p, int w, int h, float fd): Pos(p), width(w), height(h), focus_dist(fd) {
 	
 }
@@ -94,9 +95,23 @@ bool RRayTracer::rayTrace(vector3& ray, vector3& color, Object* Obj) {
 			//visibleLights.push_back(l);
 		}
 	}
-	//Russian Roullete - now I have the base diffuse and specular, do I bounce for transmission/reflection?
+	//BELOW: THIS NEEDS TO MOVE INTO THE LIGHTS VISIBILITY LOOP. FOR THIS, I NEED TO TAKE THE CLASS VARIABLES FOR HIT & MOVE INTO THIS FUNCTION.
+	//Now I have the base diffuse and specular, do I bounce for transmission/reflection?
+	//based on the sample size, jitter/roullete will be added - defaults to 1 for simplicity/speed
+	/*
+	if (Obj->material->trans >= 0.01f || Obj->material->reflect >= 0.01f) {
 
-	
+		//Nlh = RRayTracer::ray(lightpos, HitPos);
+
+
+		double theta_i;
+		double theta_r;
+		double theta_t;
+		double R = fresnel::fresnels()
+		rayTrace()
+
+	}
+	*/
 
 	 
 	//all of this below was just placed inside the lightlist loop

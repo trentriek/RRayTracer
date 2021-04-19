@@ -27,8 +27,8 @@ int main(int args, char** argv) {
 	Image output = Image(width, height);
 	Material mat1 = Material(vector3(255.0f, 0.0f, 0.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.5f);
 	Material mat2 = Material(vector3(0.0f, 255.0f, 0.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.5f);
-	Material mat3 = Material(vector3(0.0f, 0.0f, 255.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.0f);
-	Material backmat = Material(vector3(130.0f, 150.0f, 10.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.0f);
+	Material mat3 = Material(vector3(0.0f, 0.0f, 255.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 1.0f);
+	Material backmat = Material(vector3(130.0f, 150.0f, 10.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.2f);
 	backmat.basefileinput = true;
 	backmat.basemap.load("../resources/uvs/bw.png");
 	Material worldmat = Material(vector3(255.0f, 0.0f, 0.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.5f);
