@@ -15,6 +15,7 @@ public:
 	bool barycentric(vector3 P, vector3& Bcoord);
 	static float area(vector3 a, vector3 b, vector3 c);
 	float area();
+	vector3 center();
 	vector3 Ni;
 private:
 	float u;

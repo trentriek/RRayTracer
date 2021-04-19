@@ -143,20 +143,7 @@ bool Plane::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 		}
 	}
 	return false;
-	/*
-	vector3 ei = (eye - pos);
-	float surface = vector3::dot(Ni, ei);
-	float surface2 = vector3::dot(Ni, Npe);
-	if (surface2 < 0) {
-		float th = (-surface / vector3::dot(Ni, Npe));
-		HitPos = (Npe * th);
-		hitN = Ni;
-		setUV(HitPos - pos);
-		return true;
-	}
-	return false;
-
-	*/
+	
 }
 
 void Plane::setUV(vector3 p) {
@@ -167,19 +154,6 @@ void Plane::setUV(vector3 p) {
 		out_v = vector3::dot(-N1, p) / material->basemap.getHeight();
 		while (out_v < 0) out_v = out_v + 1;
 		
-		//printf("%f, %f \n", out_u, out_v);
-
-		//vector3 a = vector3::cross(Ni, vector3(1,0,0));
-		//vector3 b = vector3::cross(Ni, vector3(0, 1, 0));
-		//vector3 max = vector3::dot(a, a) < vector3::dot(b, b) ? b : a;
-		//vector3 c = vector3::cross(Ni, vector3(0, 0, 1));
-		//max = vector3::dot(max, max) < vector3::dot(c, c) ? c : max;
-		//max = max.normalize();
-		//vector3 v = vector3::cross(Ni, max);
-		//out_u = vector3::dot(max, HitPos.normalize());
-		//while (out_u < 0) out_u = out_u + 1;
-		//out_v = vector3::dot(v, HitPos.normalize());
-		//while (out_v < 0) out_v = out_v + 1;
 	}
 }
 
@@ -224,12 +198,13 @@ Material::Material(vector3 DC, vector3 RC, float DP, float SP, float TP, float R
 	reflect = RP;
 	basefileinput = false;
 	normalfileinput = false;
+	refractvie_index = 1.57;
 }
 Material::~Material() {
 
 }
 
-vector3 Material::GetColor(float dif_i, float spec_i, float trans_i, float reflect_i, float U, float V)
+vector3 Material::GetDiffuseColor(float dif_i, float U, float V)
 {
 	//if there's a mapping, set the diffuse, specular, etc to be whatever mapping you choose.
 	if (basefileinput) {
@@ -243,7 +218,7 @@ vector3 Material::GetColor(float dif_i, float spec_i, float trans_i, float refle
 
 	}
 	
-	temp = (diffuseC * dif * dif_i) + (specularC * spec * spec_i) + (transmissionC * trans * trans_i) + (reflectionC * reflect * reflect_i);
+	temp = (diffuseC * dif * dif_i);
 
 	if (temp.x > 255) temp.x = 255;
 	if (temp.y > 255) temp.y = 255;

@@ -14,6 +14,7 @@ struct vector3 {
 	static vector3 cross(vector3 a, vector3 b);
 	static float distance(vector3 a, vector3 b);
 	static float angle(vector3 a, vector3 b);
+	static vector3 midpoint(vector3 a, vector3 b);
 	vector3 operator+(const vector3& b);
 	vector3 operator+=(const vector3& b);
 	vector3 operator-(const vector3& b);

@@ -44,7 +44,7 @@ public:
 
 
 
-	//helper values placed within the class declaration for quick access - moved to render cache 
+	//helper values placed within the class declaration for quick access
 	vector3 Npe;
 	vector3 Pe;
 	vector3 HitPos;
@@ -57,10 +57,10 @@ public:
 	static vector3 ray(vector3 point, vector3 point2);
 
 private:
-	std::vector<Light*> visibleLights;
+	//std::vector<Light*> visibleLights;
 	vector3 currentHit;
 	vector3 currentNormal;
-	void rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj);
+	bool rayTrace(vector3& ray, vector3& color, Object* Obj);
 	int objnum;
 
 	void testcolor(Object* Obj, Light* l, vector3& color);

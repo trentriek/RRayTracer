@@ -43,7 +43,7 @@ void RRayTracer::Render(Image& output) {
 		for (int i = 0; i < w; i++) {
 			//here we could add a third for loop to itterate over every ray cast within a pixel for aliasing - NEED TO DO
 			Ray = persp->getRay(i, j);
-			rayTrace(Ray, ishit, HitColor, hitObj);
+			ishit = rayTrace(Ray, HitColor, hitObj);
 			//again, in this third loop we would do some form of averaging for the pixel. We can also do other processing here - but Currently we just want to see if we can hit stuff.
 
 			pixel[0] = HitColor.x; pixel[1] = HitColor.y; pixel[2] = HitColor.z;
@@ -56,16 +56,15 @@ void RRayTracer::Render(Image& output) {
 
 }
 
-void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) {
+bool RRayTracer::rayTrace(vector3& ray, vector3& color, Object* Obj) {
 
 	const unsigned short testing = 0;
 
-	color = vector3(0.0, 0.0, 0.0);
+	color = vector3();
 	HitPos = vector3(10000000.0f, 100000000.0f, 10000000.0f);
 	HitNormal = vector3();
-	hit = false; //output hit
-	bool didhit = false;
-	//for every object - 
+	bool hit = false; //current hit check
+	bool didhit = false; //output hit - did it hit anything?
 	for (Object* object : objList) {
 		hit = object->hit(persp->Pos, ray, currentHit, currentNormal);
 		if (hit) {
@@ -79,18 +78,32 @@ void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) 
 			}
 		}
 	}
+
+	//this loop is a cast to check for  "direct" light sources - is there a direct path to this point from each light?
 	for (Light* l : lightList) {
 		
-		if (l->isVisible(HitPos, HitNormal, Pe)) //NEED TO CHANGE; Rmove the globals
+		if (l->isVisible(HitPos, HitNormal, Pe))
 		{
-			visibleLights.push_back(l);
+			color += (Obj->material->GetDiffuseColor(l->out_t, Obj->out_u, Obj->out_v) ); //diffuse
+			color += l->color * l->out_s * Obj->material->spec; //specular
+			color = color * l->intensity;
+			if (color.x > 255) color.x = 255;
+			if (color.y > 255) color.y = 255;
+			if (color.z > 255) color.z = 255;
+
+			//visibleLights.push_back(l);
 		}
 	}
+	//Russian Roullete - now I have the base diffuse and specular, do I bounce for transmission/reflection?
 
+	
 
+	 
+	//all of this below was just placed inside the lightlist loop
+	/*
 	if (!didhit || visibleLights.size() == 0) {
 		color = vector3();
-		return;
+		return hit;
 	}
 	else {
 		//check the diffuse, specular, transmisstion values; determine if you need to shoot are recursive ray from the hit point
@@ -100,7 +113,10 @@ void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) 
 				testcolor(Obj, l, color);
 			}
 			else {
-				//Obj->material->transmissionC = ayayayda
+				//check for recursive raycasting
+
+				//get fresnel
+
 				color += ( Obj->material->GetColor(l->out_t, l->out_s, 0.0f, 0.0f, Obj->out_u, Obj->out_v) * l->intensity);
 				if (color.x > 255) color.x = 255;
 				if (color.y > 255) color.y = 255;
@@ -113,11 +129,10 @@ void RRayTracer::rayTrace(vector3& ray, bool& hit, vector3& color, Object* Obj) 
 
 		//if (Obj->getType() == sphere) {
 		//	printf("%f. %f, %f, %d \n", color.x, color.y, color.z, Obj->getType());
-		//}
-		
-
+		//}	
 	}
-
+	*/
+	return didhit;
 }
 
 bool RRayTracer::raycast(vector3& point, vector3& Nr, std::vector<Object*> objList, Object* Obj, vector3* hitpoint, vector3* hitnormal, vector3 Pe, bool checkall) {

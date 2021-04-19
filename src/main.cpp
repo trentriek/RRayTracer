@@ -52,11 +52,11 @@ int main(int args, char** argv) {
 	spherethree.DebugColor = vector3(0.0f, 0.0f, 255.0f);
 	spherethree.material = &mat1;
 
-	PolygonMesh Triangle = PolygonMesh(vector3(0.0f, 0.0f, -6.0f));
+	PolygonMesh Triangle = PolygonMesh(vector3(0.0f, 0.0f, -2.0f));
 	triangle temp = triangle(
-		vector3(0.5f, -0.5f, -6.5f),
-		vector3(-0.5f, -0.5f, -6.5f),
-		vector3(-0.5f, 0.5f, -6.5f)
+		vector3(0.3f, 0.0f, -2.5f),
+		vector3(-0.1f, 0.0f, -2.5f),
+		vector3(0.6f, -0.1f, -2.5f)
 	);
 	Triangle.polygons.push_back(temp);
 
@@ -74,8 +74,10 @@ int main(int args, char** argv) {
 	
 	Light lightOne = Light(vector3(4.0f, -1.0f, -3.0f));
 	lightOne.intensity = 1.0f;
+
 	Light lightTwo = Light(vector3(2.0f, -4.0f, -5.0f));
 	lightTwo.intensity = 0.5f;
+	lightTwo.color = vector3(255.0, 0.0, 0.0);
 
 	DirectionalLight Sun = DirectionalLight(vector3(-50.0f, 100.0f, -3.0f), vector3(0, 0, 200), 1.0f);
 	Sun.Ni = vector3(-1.0, 0.0, 0.0);
@@ -87,16 +89,16 @@ int main(int args, char** argv) {
 	AreaLight area = AreaLight(vector3(4.0f, -1.0f, -3.0f), vector3(150, 150, 30), 1.0f);
 	area.focus_dist = 100.0;
 	area.setlook(vector3(9.0f, -2.0f, -3.0f), vector3(10.0f, -1.0f, -3.0f));
-	area.width = 3;
-	area.height = 3;
+	area.width = 2;
+	area.height = 2;
 
 	rt.objList.push_back(&sphereone);
 	rt.objList.push_back(&spheretwo);
 	rt.objList.push_back(&spherethree);
 	//rt.objList.push_back(&cube);
 	//rt.objList.push_back(&Triangle);
-	//rt.objList.push_back(&backplane);
-	//rt.objList.push_back(&leftplane);
+	rt.objList.push_back(&backplane);
+	rt.objList.push_back(&leftplane);
 
 	rt.lightList.push_back(&lightOne); //create and add lights
 	rt.lightList.push_back(&lightTwo);

@@ -22,6 +22,14 @@ float vector3::magnitude() {
 	return (float)sqrt(X);
 }
 
+vector3 vector3::midpoint(vector3 a, vector3 b) {
+	vector3 temp;
+	temp.x = (a.x + b.x) / 2.0f;
+	temp.y = (a.y + b.y) / 2.0f;
+	temp.z = (a.z + b.z) / 2.0f;
+	return temp;
+}
+
 vector3 vector3::operator+(const vector3& b) {
 	vector3 temp;
 	temp.x = x + b.x;

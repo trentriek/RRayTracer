@@ -11,12 +11,13 @@ bool AreaLight::isVisible(vector3 HitPos, vector3 HitNormal, vector3 Pe) {
 	for (int j = 0; j < height; j++) {
 		for (int i = 0; i < width; i++) {
 			PP = P00 + (n0 * i) + (n1 * j);
+			PP = PP.normalize();
 			Nlh = RRayTracer::ray(PP, HitPos);
 			HitPosOffset = HitPos + HitNormal / 5;
 			ln = HitPos - PP;
 			
 			ln = -ln.normalize();
-			if (!RRayTracer::raycast(HitPosOffset, Nlh, raytracer->objList, &o, &hitp, &hitn, false)// ||
+			if (!RRayTracer::raycast(HitPosOffset, Nlh, raytracer->objList, &o, &hitp, &hitn, false) //||
 				//vector3::distance(hitp, PP) > vector3::distance(HitPosOffset, PP) ||
 				//vector3::distance(hitp, PP) < 0
 				)
@@ -24,13 +25,6 @@ bool AreaLight::isVisible(vector3 HitPos, vector3 HitNormal, vector3 Pe) {
 				Cos = vector3::dot(ln, HitNormal);
 				out_t += ( (0.5f * Cos) + 0.5f);
 				out_s += (-Nlh.z + 2.0f * (vector3::dot(Nlh, HitNormal)) * HitNormal.z);
-				//out_t += 1;
-				//out_s += 0;
-			}
-			else
-			{
-				//out_t += 1;
-				//out_t += 0;
 			}
 
 		}

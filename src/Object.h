@@ -99,12 +99,18 @@ public:
 	float spec;
 	float trans;
 	float reflect;
-	virtual vector3 GetColor(float dif_i = 1.0f, float spec_i = 0.0f, float trans_i = 0.0f, float reflect_i = 0.0f, float U = 0.0f, float V = 0.0f);
+	virtual vector3 GetDiffuseColor(float dif_i = 1.0f, float U = 0.0f, float V = 0.0f);
 	void getTexture(const char* imagename);
+
+	float refractvie_index;
+
 	vector3 diffuseC;
+
+	//helper colors incase these values are modified by the material
 	vector3 specularC;
 	vector3 transmissionC;
 	vector3 reflectionC;
+
 	bool basefileinput;
 	bool normalfileinput;
 	Image basemap;
