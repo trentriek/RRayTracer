@@ -61,7 +61,6 @@ void Object::setview(vector3 up, vector3 look) {
 	look = look.normalize();
 	N2 = look; // look.magnitude();
 	vector3 V0 = vector3::cross(look, up);
-	//if (V0.zero()) n0 = vector3();
 	N0 = V0 / V0.magnitude();
 	N1 = vector3::cross(N0, N2);
 	//vector3 Pc = pos + (N2 * focus_dist);
@@ -93,17 +92,34 @@ bool Sphere::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 	vector3 ei = (eye - pos);
 	vector3 ie = (pos - eye);
 	float c = vector3::dot(ei, ei) - (radius * radius); //b and c are references to the quadratic formula
-	if (c >= 0.0f) {
-		float b = vector3::dot(Npe, ie);
-		float delta = (b * b) - c;  //tri is the discriminant
-		if (b >= 0.000f && delta >= 0.000f) {
-			float th = b - sqrt(delta);
-			HitPos = eye + (Npe * th);
-			hitN = (HitPos - pos) / radius;
-			//get normal
-			hitN = hitN.normalize();
-			setUV(HitPos - pos);
-			return true;
+	if (!isinverted) {
+		if (c >= 0.0f) {
+			float b = vector3::dot(Npe, ie);
+			float delta = (b * b) - c;  //tri is the discriminant
+			if (b >= 0.000f && delta >= 0.000f) {
+				float th = b - sqrt(delta);
+				HitPos = eye + (Npe * th);
+				hitN = (HitPos - pos) / radius;
+				//get normal
+				hitN = hitN.normalize();
+				setUV(HitPos - pos);
+				return true;
+			}
+		}
+	}
+	if (isinverted) {
+		if (c <= 0.0f) { //in this case, as long as c is inside there is always an intersection
+			float b = vector3::dot(Npe, ie);
+			float delta = (b * b) - c;  //tri is the discriminant
+			//if (b >= 0.000f && delta >= 0.000f) {
+				float th = b + sqrt(delta);
+				HitPos = eye + (Npe * th);
+				hitN = (HitPos - pos) / radius;
+				//get normal
+				hitN = hitN.normalize();
+				setUV(HitPos - pos);
+				return true;
+			//}
 		}
 	}
 
@@ -148,11 +164,16 @@ bool Plane::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) {
 
 void Plane::setUV(vector3 p) {
 	if (material->basefileinput == true) {
+		//if (p.x > 1000) {
+		//	printf("hello");
+		//}
 		float temp = vector3::dot(N0, p);
 		out_u = vector3::dot(N0, p) / material->basemap.getWidth();
 		while (out_u < 0) out_u = out_u + 1;
+		while (out_u > material->basemap.getWidth()) out_u = out_u - 1;
 		out_v = vector3::dot(-N1, p) / material->basemap.getHeight();
 		while (out_v < 0) out_v = out_v + 1;
+		while (out_v > material->basemap.getHeight()) out_v = out_v - 1;
 		
 	}
 }
@@ -189,16 +210,16 @@ bool Light::isVisible(vector3 HitPos, vector3 HitNormal, vector3 Pe) {
 
 //**************material*********************
 
-Material::Material(vector3 DC, vector3 RC, float DP, float SP, float TP, float RP) 
-	: diffuseC(DC), specularC(RC)
+Material::Material(vector3 DC, float DP, float SP, float ReflectP, float RefractP) 
+	: diffuseC(DC)
 {
 	dif = DP;
 	spec = SP;
-	trans = TP;
-	reflect = RP;
+	reflect = ReflectP;
+	refract = RefractP;
 	basefileinput = false;
 	normalfileinput = false;
-	refractvie_index = 1.57;
+	refractvie_index = 1.13;
 }
 Material::~Material() {
 

@@ -44,7 +44,7 @@ void RRayTracer::Render(Image& output) {
 		for (int i = 0; i < w; i++) {
 			//here we could add a third for loop to itterate over every ray cast within a pixel for aliasing - NEED TO DO
 			Ray = persp->getRay(i, j);
-			ishit = rayTrace(Ray, HitColor, hitObj);
+			ishit = rayTrace(Ray, persp->Pos, HitColor, hitObj);
 			//again, in this third loop we would do some form of averaging for the pixel. We can also do other processing here - but Currently we just want to see if we can hit stuff.
 
 			pixel[0] = HitColor.x; pixel[1] = HitColor.y; pixel[2] = HitColor.z;
@@ -57,17 +57,24 @@ void RRayTracer::Render(Image& output) {
 
 }
 
-bool RRayTracer::rayTrace(vector3& ray, vector3& color, Object* Obj) {
-
-	const unsigned short testing = 0;
-
+bool RRayTracer::rayTrace(vector3& ray, vector3& Pe, vector3& color, Object* Obj) {
+	//hit values need to be stored
+	vector3 HitPos;
+	vector3 HitNormal;
+	Object* hitobj;
+	vector3 currentHit;
+	vector3 currentNormal;
+	//some settup
+	//const unsigned short testing = 0;
 	color = vector3();
 	HitPos = vector3(10000000.0f, 100000000.0f, 10000000.0f);
 	HitNormal = vector3();
+
+	//********PART 1 - check for a hit************//
 	bool hit = false; //current hit check
 	bool didhit = false; //output hit - did it hit anything?
 	for (Object* object : objList) {
-		hit = object->hit(persp->Pos, ray, currentHit, currentNormal);
+		hit = object->hit(Pe, ray, currentHit, currentNormal);
 		if (hit) {
 			didhit = true;
 			
@@ -80,73 +87,42 @@ bool RRayTracer::rayTrace(vector3& ray, vector3& color, Object* Obj) {
 		}
 	}
 
-	//this loop is a cast to check for  "direct" light sources - is there a direct path to this point from each light?
-	for (Light* l : lightList) {
-		
-		if (l->isVisible(HitPos, HitNormal, Pe))
-		{
-			color += (Obj->material->GetDiffuseColor(l->out_t, Obj->out_u, Obj->out_v) ); //diffuse
-			color += l->color * l->out_s * Obj->material->spec; //specular
-			color = color * l->intensity;
-			if (color.x > 255) color.x = 255;
-			if (color.y > 255) color.y = 255;
-			if (color.z > 255) color.z = 255;
+	if (didhit) {
+		//*************PART 2 - get the diffuse & specular color of the hit*********************//
+		//this loop is a cast to check for  "direct" light sources - is there a direct path to this point from each light?
+		for (Light* l : lightList) {
 
-			//visibleLights.push_back(l);
-		}
-	}
-	//BELOW: THIS NEEDS TO MOVE INTO THE LIGHTS VISIBILITY LOOP. FOR THIS, I NEED TO TAKE THE CLASS VARIABLES FOR HIT & MOVE INTO THIS FUNCTION.
-	//Now I have the base diffuse and specular, do I bounce for transmission/reflection?
-	//based on the sample size, jitter/roullete will be added - defaults to 1 for simplicity/speed
-	/*
-	if (Obj->material->trans >= 0.01f || Obj->material->reflect >= 0.01f) {
-
-		//Nlh = RRayTracer::ray(lightpos, HitPos);
-
-
-		double theta_i;
-		double theta_r;
-		double theta_t;
-		double R = fresnel::fresnels()
-		rayTrace()
-
-	}
-	*/
-
-	 
-	//all of this below was just placed inside the lightlist loop
-	/*
-	if (!didhit || visibleLights.size() == 0) {
-		color = vector3();
-		return hit;
-	}
-	else {
-		//check the diffuse, specular, transmisstion values; determine if you need to shoot are recursive ray from the hit point
-		//if you need to trace another ray, trace it 
-		for (Light* l : visibleLights) {
-			if (testing) {
-				testcolor(Obj, l, color);
-			}
-			else {
-				//check for recursive raycasting
-
-				//get fresnel
-
-				color += ( Obj->material->GetColor(l->out_t, l->out_s, 0.0f, 0.0f, Obj->out_u, Obj->out_v) * l->intensity);
+			if (l->isVisible(HitPos, HitNormal, Pe))
+			{
+				color += (Obj->material->GetDiffuseColor(l->out_t, Obj->out_u, Obj->out_v)); //diffuse
+				color += l->color * l->out_s * Obj->material->spec; //specular
+				color = color * l->intensity;
 				if (color.x > 255) color.x = 255;
 				if (color.y > 255) color.y = 255;
 				if (color.z > 255) color.z = 255;
 			}
-
 		}
+		//after this, a second loop calculates reflection & refraction
 
-		visibleLights.clear();
-
-		//if (Obj->getType() == sphere) {
-		//	printf("%f. %f, %f, %d \n", color.x, color.y, color.z, Obj->getType());
-		//}	
+		//*****************************PART 3 - check for recursive reflection/refraction rays*********************//
+		Object* recursivehit = NULL;
+		if (Obj->material->reflect > 0.01f) {
+			vector3 reflectivecolor;
+			vector3 reflectionray = reflection_angle(ray, HitNormal);
+			reflectionray += HitNormal/5.0f;
+			rayTrace(reflectionray, HitPos, reflectivecolor, recursivehit);
+			color += reflectivecolor * Obj->material->reflect;
+		}
+		if (Obj->material->refract > 0.01f) {
+			vector3 refractivecolor;
+			vector3 refractionray;
+			refractionray += HitNormal/5.0f;
+			//printf("%d\n", fresnels(ray, HitNormal, refractionray, Obj->material->refractvie_index) );
+			fresnels(ray, HitNormal, refractionray, Obj->material->refractvie_index); //sets the refraction ray, third argument
+			rayTrace(refractionray, HitPos, refractivecolor, recursivehit);
+			color += refractivecolor * Obj->material->refract;
+		}
 	}
-	*/
 	return didhit;
 }
 
@@ -181,7 +157,7 @@ vector3 RRayTracer::ray(vector3 point, vector3 point2) {
 
 //**************************test render- not really used anymore************************//
 
-void RRayTracer::testcolor(Object* Obj, Light* l, vector3 &color) {
+void RRayTracer::testcolor(Object* Obj, Light* l, vector3 &color, vector3& HitPos, vector3& HitNormal) {
 	vector3 dc = Obj->DebugColor;
 	vector3 ln = HitPos - l->getPos();
 	ln = -ln.normalize();

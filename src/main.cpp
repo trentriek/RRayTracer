@@ -5,13 +5,12 @@
 
 RRayTracer* raytracer;
 Camera* CurrentCam;
-Material defaultMat = Material(vector3(255.0f, 0.0f, 0.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.5f);
+Material defaultMat = Material(vector3(255.0f, 0.0f, 0.0f), 1.0f, 0.5f);
 const char* outName = "../resources/output.png";
 const char* cubefile = "../resources/objs/cube.obj";
 const char* bunnyfile = "../resources/objs/bunny.obj";
 int width = 960;
 int height = 540;
-
 
 using namespace std;
 int main(int args, char** argv) {
@@ -24,33 +23,38 @@ int main(int args, char** argv) {
 	test.barycentric(vector3(58.47, 39.35, -36.08), op);
 	*/
 
+	//*******************CREATE MATERIALS************************//
+
 	Image output = Image(width, height);
-	Material mat1 = Material(vector3(255.0f, 0.0f, 0.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.5f);
-	Material mat2 = Material(vector3(0.0f, 255.0f, 0.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.5f);
-	Material mat3 = Material(vector3(0.0f, 0.0f, 255.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 1.0f);
-	Material backmat = Material(vector3(130.0f, 150.0f, 10.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.2f);
+	Material mat1 = Material(vector3(255.0f, 0.0f, 0.0f), 0.0f, 0.5f, 1.0f, 0.0f);
+	Material mat2 = Material(vector3(0.0f, 255.0f, 0.0f), 1.0f, 0.5f);
+	Material mat3 = Material(vector3(0.0f, 0.0f, 255.0f), 1.0f, 1.0f);
+	
+	Material backmat = Material(vector3(130.0f, 150.0f, 10.0f), 1.0f, 0.2f);
 	backmat.basefileinput = true;
 	backmat.basemap.load("../resources/uvs/bw.png");
-	Material worldmat = Material(vector3(255.0f, 0.0f, 0.0f), vector3(255.0f, 255.0f, 255.0f), 1.0f, 0.5f);
-	worldmat.basemap.load("../resources/uvs/earthmap.png");
-	worldmat.basefileinput = true;
 
+	Material worldmat = Material(vector3(255.0f, 0.0f, 0.0f), 1.0f, 0.5f);
+	worldmat.basefileinput = true;
+	worldmat.basemap.load("../resources/uvs/earthmap.png");
+
+	//*******************SETUP RAYTRACTER************************//
 	Camera persp = Camera(vector3(0.0,0.0,0.0f));
 	persp.focus_dist = 1000.0f;
 	persp.setlook(vector3(0.0f, 1.0f, 0.0f), vector3(0.0f, 0.0f, -1.0f)); //setup camera - make position and set up viewing angle.
 	RRayTracer rt;
 	rt.persp = &persp;
 	
-
-	Sphere sphereone = Sphere(vector3(0.0f, 0.0f, -6.0f), 0.5f);
-	sphereone.DebugColor = vector3(255.0f, 0.0f, 0.0f);
-	sphereone.material = &worldmat;
+	//*******************CREATE OBJECTS************************//
+	Sphere sphereone = Sphere(vector3(-1.0f, -0.3f, -4.0f), 0.5f);
+	sphereone.material = &mat3;
 	Sphere spheretwo = Sphere(vector3(0.0f, 1.0f, -4.0f), 1.0f);
-	spheretwo.DebugColor = vector3(0.0f, 255.0f, 0.0f);
 	spheretwo.material = &mat2;
-	Sphere spherethree = Sphere(vector3(2.0f, 1.0f, -4.0f), 0.5f);
-	spherethree.DebugColor = vector3(0.0f, 0.0f, 255.0f);
+	Sphere spherethree = Sphere(vector3(1.5f, -1.0f, -5.0f), 1.0f);
 	spherethree.material = &mat1;
+	Sphere worldsphere = Sphere(vector3(0.0f, 0.0, -5.0f), 200.0f);
+	worldsphere.isinverted = true;
+	sphereone.material = &mat3;
 
 	PolygonMesh Triangle = PolygonMesh(vector3(0.0f, 0.0f, -2.0f));
 	triangle temp = triangle(
@@ -65,17 +69,21 @@ int main(int args, char** argv) {
 
 	
 	Plane backplane = Plane(vector3(0.0f, 0.0f, -100.0f), vector3(0.0f, 0.0f, 1.0f));
-	backplane.DebugColor = vector3(255.0f, 255.0f, 255.0f);
 	backplane.setview(vector3(0.0f, -1.0f, 0.0f), vector3(0.0f, 0.0f, 1.0f));
 	backplane.material = &backmat;
-	Plane leftplane = Plane(vector3(-3.0f, 0.0f, -10.0f), vector3(1.0f, -0.23f, 0.0f));
-	leftplane.DebugColor = vector3(255.0f, 10.0f, 10.0f);
+	Plane leftplane = Plane(vector3(-3.0f, 0.0f, -10.0f), vector3(1.0f, -0.7f, 0.0f));
 	leftplane.material = &mat3;
 	
-	Light lightOne = Light(vector3(4.0f, -1.0f, -3.0f));
+
+
+
+	//*******************CREATE LIGHTS************************//
+
+
+	Light lightOne = Light(vector3(4.0f, 5.0f, -3.0f));
 	lightOne.intensity = 1.0f;
 
-	Light lightTwo = Light(vector3(2.0f, -4.0f, -5.0f));
+	Light lightTwo = Light(vector3(2.0f, -4.0f, 5.0f));
 	lightTwo.intensity = 0.5f;
 	lightTwo.color = vector3(255.0, 0.0, 0.0);
 
@@ -92,6 +100,8 @@ int main(int args, char** argv) {
 	area.width = 2;
 	area.height = 2;
 
+
+
 	rt.objList.push_back(&sphereone);
 	rt.objList.push_back(&spheretwo);
 	rt.objList.push_back(&spherethree);
@@ -100,7 +110,7 @@ int main(int args, char** argv) {
 	rt.objList.push_back(&backplane);
 	rt.objList.push_back(&leftplane);
 
-	rt.lightList.push_back(&lightOne); //create and add lights
+	//rt.lightList.push_back(&lightOne); //create and add lights
 	rt.lightList.push_back(&lightTwo);
 	//rt.lightList.push_back(&Sun);
 	//rt.lightList.push_back(&Show);
@@ -112,4 +122,18 @@ int main(int args, char** argv) {
 
 	return 0;
 }
+
+/*
+void setMaterials(RRayTracer& rr, vector<Material*>& mats) {
+
+}
+
+void addObjects(RRayTracer& rr, vector<Object*>& objs) {
+
+}
+
+void addLights(RRayTracer& rr, vector<Object*>& objs) {
+
+}
+*/
 

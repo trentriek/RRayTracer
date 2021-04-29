@@ -60,7 +60,7 @@ bool PolygonMesh::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) 
 			float t = (vector3::dot((Triangle.center() - eye), Triangle.Ni)) / denom;
 			if (t >= 0) { //if ray hits plane, check to see if its within the triangle
 				vector3 uvw;
-				/*
+				
 				if (Triangle.barycentric(Npe * t, uvw)) {
 					HitPos = (Npe * t);
 					hitN = Triangle.Ni;
@@ -68,7 +68,7 @@ bool PolygonMesh::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) 
 					out_v = uvw.y;
 					return true;
 				}
-				*/
+				
 				/*
 				vector3 edge1 = Triangle.p0 - Triangle.p1;
 				vector3 edge0 = Triangle.p2 - Triangle.p1;
@@ -87,6 +87,7 @@ bool PolygonMesh::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) 
 					return true;
 					}
 				*/
+				/*
 				vector3 v0v1 = Triangle.p1 - Triangle.p0;
 				vector3 v0v2 = Triangle.p2 - Triangle.p0;
 				// no need to normalize
@@ -108,11 +109,12 @@ bool PolygonMesh::hit(vector3 eye, vector3 Npe, vector3& HitPos, vector3& hitN) 
 
 				HitPos = (Npe * t);
 				hitN = Triangle.Ni;
+				*/
 				}
 			}
 		}
 
-	return true;
+	return false;
 	}
 
 	PolygonMesh::PolygonMesh() : Object() {

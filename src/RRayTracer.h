@@ -50,18 +50,13 @@ public:
 	static vector3 ray(vector3 point, vector3 point2);
 
 private:
-	//std::vector<Light*> visibleLights;
-	vector3 currentHit;
-	vector3 currentNormal;
-	bool rayTrace(vector3& ray, vector3& color, Object* Obj);
-	void testcolor(Object* Obj, Light* l, vector3& color);
+	bool rayTrace(vector3& ray, vector3& Pe, vector3& color, Object* Obj);
+	void testcolor(Object* Obj, Light* l, vector3& color, vector3& HitPos, vector3& HitNormal);
 
 	//helper values placed within the class declaration for quick access
 	vector3 Npe;
 	vector3 Pe;
-	vector3 HitPos;
-	vector3 HitNormal;
-	Object* hitobj;
+	
 
 };
 

@@ -93,24 +93,19 @@ protected:
 
 class Material {
 public:
-	Material(vector3 DC = vector3(100.0f, 100.0f, 100.0f), vector3 RC = vector3(255.0f, 255.0f, 255.0f), float DP = 1.0f, float SP = 0.0f, float TP = 0.0f, float RP = 0.0f);
+	Material(vector3 DC = vector3(100.0f, 100.0f, 100.0f), float DP = 1.0f, float SP = 0.0f, float ReflectP = 0.0f, float RefractP = 0.0f);
 	~Material();
 	float dif;
 	float spec;
-	float trans;
+	float refract;
 	float reflect;
 	virtual vector3 GetDiffuseColor(float dif_i = 1.0f, float U = 0.0f, float V = 0.0f);
 	void getTexture(const char* imagename);
-
 	float refractvie_index;
 
 	vector3 diffuseC;
 
 	//helper colors incase these values are modified by the material
-	vector3 specularC;
-	vector3 transmissionC;
-	vector3 reflectionC;
-
 	bool basefileinput;
 	bool normalfileinput;
 	Image basemap;
