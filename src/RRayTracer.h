@@ -35,24 +35,23 @@ protected:
 class RRayTracer {
 
 public:
-	//RRayTracer();
-	//~RRayTracer();
+	RRayTracer();
+	~RRayTracer();
 	Camera* persp;
 	std::vector<Object*> objList;
 	std::vector<Light*> lightList;
 	void Render(Image& output);
-	//the amount of samples (approximatly) per bounce; after 10 samples it adds russian roullete. Well, not yet but I want it to add that.
+	//the amount of samples (approximatly) per bounce;
 	int sampleamount;
-
 
 	static bool raycast(vector3& point, vector3& Nr, std::vector<Object*> objList, Object* Obj,
 		vector3* hitpoint, vector3* hitnormal, vector3 Pe, bool checkall = true);
 	static vector3 ray(vector3 point, vector3 point2);
 
 private:
-	bool rayTrace(vector3& ray, vector3& Pe, vector3& color, Object* Obj);
+	bool rayTrace(vector3& ray, vector3& Pe, vector3& color, Object** Obj, int RecurssionDepth = 0);
 	void testcolor(Object* Obj, Light* l, vector3& color, vector3& HitPos, vector3& HitNormal);
-
+	
 	//helper values placed within the class declaration for quick access
 	vector3 Npe;
 	vector3 Pe;

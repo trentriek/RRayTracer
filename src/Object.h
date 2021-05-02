@@ -115,8 +115,8 @@ protected:
 	//helper values
 	vector3 temp;
 	int tempinfrompicture[4];
-	float Utexpos;
-	float Vtexpos;
+	//float Utexpos;
+	//float Vtexpos;
 };
 
 

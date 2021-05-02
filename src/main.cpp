@@ -12,6 +12,10 @@ const char* bunnyfile = "../resources/objs/bunny.obj";
 int width = 960;
 int height = 540;
 
+
+bool singleframe = true;
+int numofframes = 1;
+
 using namespace std;
 int main(int args, char** argv) {
 	/*s
@@ -23,12 +27,18 @@ int main(int args, char** argv) {
 	test.barycentric(vector3(58.47, 39.35, -36.08), op);
 	*/
 
+	if (false) {
+		width = 480;
+		height = 360;
+	}
+
+
 	//*******************CREATE MATERIALS************************//
 
 	Image output = Image(width, height);
 	Material mat1 = Material(vector3(255.0f, 0.0f, 0.0f), 0.0f, 0.5f, 1.0f, 0.0f);
 	Material mat2 = Material(vector3(0.0f, 255.0f, 0.0f), 1.0f, 0.5f);
-	Material mat3 = Material(vector3(0.0f, 0.0f, 255.0f), 1.0f, 1.0f);
+	Material mat3 = Material(vector3(0.0f, 0.0f, 255.0f), 1.0f, 0.0f);
 	
 	Material backmat = Material(vector3(130.0f, 150.0f, 10.0f), 1.0f, 0.2f);
 	backmat.basefileinput = true;
@@ -44,17 +54,19 @@ int main(int args, char** argv) {
 	persp.setlook(vector3(0.0f, 1.0f, 0.0f), vector3(0.0f, 0.0f, -1.0f)); //setup camera - make position and set up viewing angle.
 	RRayTracer rt;
 	rt.persp = &persp;
+	rt.sampleamount = 4;
 	
 	//*******************CREATE OBJECTS************************//
-	Sphere sphereone = Sphere(vector3(-1.0f, -0.3f, -4.0f), 0.5f);
+	Sphere sphereone = Sphere(vector3(1.0f, -0.3f, -3.0f), 0.5f);
 	sphereone.material = &mat3;
-	Sphere spheretwo = Sphere(vector3(0.0f, 1.0f, -4.0f), 1.0f);
+	Sphere spheretwo = Sphere(vector3(-1.0f, 1.0f, -4.0f), 1.0f);
 	spheretwo.material = &mat2;
-	Sphere spherethree = Sphere(vector3(1.5f, -1.0f, -5.0f), 1.0f);
+	Sphere spherethree = Sphere(vector3(1.0f, -0.1f, -5.0f), 1.0f);
 	spherethree.material = &mat1;
-	Sphere worldsphere = Sphere(vector3(0.0f, 0.0, -5.0f), 200.0f);
+	spherethree.name = "reflactivesphere";
+	Sphere worldsphere = Sphere(vector3(0.0f, 0.0, 0.0f), 200.0f);
 	worldsphere.isinverted = true;
-	sphereone.material = &mat3;
+	worldsphere.material = &mat3;
 
 	PolygonMesh Triangle = PolygonMesh(vector3(0.0f, 0.0f, -2.0f));
 	triangle temp = triangle(
@@ -73,6 +85,7 @@ int main(int args, char** argv) {
 	backplane.material = &backmat;
 	Plane leftplane = Plane(vector3(-3.0f, 0.0f, -10.0f), vector3(1.0f, -0.7f, 0.0f));
 	leftplane.material = &mat3;
+	sphereone.name = "leftsphere";
 	
 
 
@@ -102,16 +115,17 @@ int main(int args, char** argv) {
 
 
 
-	rt.objList.push_back(&sphereone);
-	rt.objList.push_back(&spheretwo);
+	//rt.objList.push_back(&sphereone);
+	//rt.objList.push_back(&spheretwo);
 	rt.objList.push_back(&spherethree);
+	//rt.objList.push_back(&worldsphere);
 	//rt.objList.push_back(&cube);
 	//rt.objList.push_back(&Triangle);
 	rt.objList.push_back(&backplane);
 	rt.objList.push_back(&leftplane);
 
-	//rt.lightList.push_back(&lightOne); //create and add lights
-	rt.lightList.push_back(&lightTwo);
+	rt.lightList.push_back(&lightOne); //create and add lights
+	//rt.lightList.push_back(&lightTwo);
 	//rt.lightList.push_back(&Sun);
 	//rt.lightList.push_back(&Show);
 	//rt.lightList.push_back(&area);

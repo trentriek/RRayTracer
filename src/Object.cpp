@@ -193,6 +193,10 @@ bool Light::isVisible(vector3 HitPos, vector3 HitNormal, vector3 Pe) {
 	ln = HitPos - pos;
 	out_t = -1.0f;
 	ln = -ln.normalize();
+
+	//bool temp = !RRayTracer::raycast(HitPosOffset, Nlh, raytracer->objList, &o, &hitp, &hitn, false);
+
+
 	if  ( !RRayTracer::raycast(HitPosOffset, Nlh, raytracer->objList, &o, &hitp, &hitn, false) ||
 		vector3::distance(hitp, pos) > vector3::distance(HitPosOffset, pos) ||
 		vector3::distance(hitp, pos) < 0
@@ -229,8 +233,8 @@ vector3 Material::GetDiffuseColor(float dif_i, float U, float V)
 {
 	//if there's a mapping, set the diffuse, specular, etc to be whatever mapping you choose.
 	if (basefileinput) {
-		Utexpos = U * basemap.getWidth();
-		Vtexpos = V * basemap.getHeight();
+		float Utexpos = U * basemap.getWidth();
+		float Vtexpos = V * basemap.getHeight();
 		basemap.getPixel(Utexpos, Vtexpos, tempinfrompicture);
 		diffuseC.setvalues(tempinfrompicture);
 	}

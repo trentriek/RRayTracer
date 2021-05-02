@@ -1,5 +1,10 @@
 #include "RC.h"
 #include "Fresnel.h"
+#include <stdlib.h>
+#include <time.h>  
+#include <ctime>  
+//#include <omp.h>
+
 Camera::Camera(vector3 p, int w, int h, float fd): Pos(p), width(w), height(h), focus_dist(fd) {
 	
 }
@@ -29,26 +34,64 @@ vector3 Camera::getRay(float u, float v) {
 	return PP;
 }
 
+RRayTracer::RRayTracer() {
+	sampleamount = 3;
+}
+RRayTracer::~RRayTracer() {
+
+}
+
 
 
 void RRayTracer::Render(Image& output) {
 	//printf("%s\n", raytracer->lightList[0]->name);
-	int w = output.getWidth();
-	int h = output.getHeight();
 	vector3 Ray;
 	bool ishit;
 	vector3 HitColor;
 	int pixel[3];
 	Object* hitObj = NULL;
-	for (int j = 0; j < h; j++) {
+	std::srand(time(0));
+	float rayXoffset;
+	float rayYoffset;
+	int w = output.getWidth();
+	int h = output.getHeight();
+	
+	//#pragma omp parallel //PROJECT READY FOR MULTITHREADING - OBJECT OUT UV's DONT WORK WITH THIS NEED TO FIX for threading to work.
+	for (int j = 0; j < h; j++) { 
 		for (int i = 0; i < w; i++) {
-			//here we could add a third for loop to itterate over every ray cast within a pixel for aliasing - NEED TO DO
+			//RANDOM Aliasing
+			
+			pixel[0] = 0.0f; pixel[1] = 0.0f; pixel[2] = 0.0f;
+			for(int k = 0; k < sampleamount; k++){
+				
+				if (sampleamount > 2.0f) {
+					rayXoffset = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+					rayYoffset = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+				}
+				else {
+					rayXoffset = (1.0f / sampleamount) * k;
+					rayYoffset = (1.0f / sampleamount) * k;
+				}
+
+				//if we want out of focus , we will also offset the camera position 
+
+
+
+				Ray = persp->getRay(i + rayXoffset, j + rayYoffset);
+				
+				ishit = rayTrace(Ray, persp->Pos, HitColor, &hitObj);
+				pixel[0] += HitColor.x; pixel[1] += HitColor.y; pixel[2] += HitColor.z;
+				
+			}
+			pixel[0] = pixel[0] / sampleamount; pixel[1] = pixel[1] / sampleamount; pixel[2] = pixel[2] / sampleamount;
+			output.setPixel(i, j, pixel);
+			/*
 			Ray = persp->getRay(i, j);
-			ishit = rayTrace(Ray, persp->Pos, HitColor, hitObj);
-			//again, in this third loop we would do some form of averaging for the pixel. We can also do other processing here - but Currently we just want to see if we can hit stuff.
+			ishit = rayTrace(Ray, persp->Pos, HitColor, &hitObj);
 
 			pixel[0] = HitColor.x; pixel[1] = HitColor.y; pixel[2] = HitColor.z;
 			output.setPixel(i, j, pixel);
+			*/
 		}
 
 	}
@@ -57,7 +100,7 @@ void RRayTracer::Render(Image& output) {
 
 }
 
-bool RRayTracer::rayTrace(vector3& ray, vector3& Pe, vector3& color, Object* Obj) {
+bool RRayTracer::rayTrace(vector3& ray, vector3& Pe, vector3& color, Object** Obj, int RecurssionDepth) {
 	//hit values need to be stored
 	vector3 HitPos;
 	vector3 HitNormal;
@@ -73,6 +116,7 @@ bool RRayTracer::rayTrace(vector3& ray, vector3& Pe, vector3& color, Object* Obj
 	//********PART 1 - check for a hit************//
 	bool hit = false; //current hit check
 	bool didhit = false; //output hit - did it hit anything?
+	Object* obj = NULL;
 	for (Object* object : objList) {
 		hit = object->hit(Pe, ray, currentHit, currentNormal);
 		if (hit) {
@@ -82,7 +126,8 @@ bool RRayTracer::rayTrace(vector3& ray, vector3& Pe, vector3& color, Object* Obj
 			if (vector3::distance(Pe, currentHit) < vector3::distance(Pe, HitPos)) {
 				HitPos = currentHit;
 				HitNormal = currentNormal;
-				Obj = object;
+				obj = object;
+				*Obj = obj;
 			}
 		}
 	}
@@ -94,34 +139,59 @@ bool RRayTracer::rayTrace(vector3& ray, vector3& Pe, vector3& color, Object* Obj
 
 			if (l->isVisible(HitPos, HitNormal, Pe))
 			{
-				color += (Obj->material->GetDiffuseColor(l->out_t, Obj->out_u, Obj->out_v)); //diffuse
-				color += l->color * l->out_s * Obj->material->spec; //specular
+				//l->isVisible(HitPos, HitNormal, Pe);
+
+				color += (obj->material->GetDiffuseColor(l->out_t, obj->out_u, obj->out_v)); //diffuse
+				color += l->color * l->out_s * obj->material->spec; //specular
 				color = color * l->intensity;
-				if (color.x > 255) color.x = 255;
-				if (color.y > 255) color.y = 255;
-				if (color.z > 255) color.z = 255;
 			}
 		}
 		//after this, a second loop calculates reflection & refraction
 
 		//*****************************PART 3 - check for recursive reflection/refraction rays*********************//
 		Object* recursivehit = NULL;
-		if (Obj->material->reflect > 0.01f) {
+		vector3 bias = HitNormal * 0.05f;
+		bool outside;
+
+		if (RecurssionDepth >= 3) {
+			//printf("%d\n", RecurssionDepth);
+			return didhit;
+		}
+		//*************************************************reflection
+		if (obj->material->reflect > 0.01f) {
 			vector3 reflectivecolor;
 			vector3 reflectionray = reflection_angle(ray, HitNormal);
-			reflectionray += HitNormal/5.0f;
-			rayTrace(reflectionray, HitPos, reflectivecolor, recursivehit);
-			color += reflectivecolor * Obj->material->reflect;
+			reflectionray = reflectionray.normalize();
+
+			outside = vector3::dot(HitNormal, ray) < 0.0f;
+			HitPos = outside ? HitPos + bias : HitPos - bias;
+			//HitPos += bias;
+
+			bool theHit = rayTrace(reflectionray, HitPos, reflectivecolor, &recursivehit , RecurssionDepth + 1);
+			color += reflectivecolor * obj->material->reflect;
 		}
-		if (Obj->material->refract > 0.01f) {
+		//*************************************************refraction
+		if (obj->material->refract > 0.01f) {
 			vector3 refractivecolor;
 			vector3 refractionray;
-			refractionray += HitNormal/5.0f;
+			HitPos;
 			//printf("%d\n", fresnels(ray, HitNormal, refractionray, Obj->material->refractvie_index) );
-			fresnels(ray, HitNormal, refractionray, Obj->material->refractvie_index); //sets the refraction ray, third argument
-			rayTrace(refractionray, HitPos, refractivecolor, recursivehit);
-			color += refractivecolor * Obj->material->refract;
+			fresnels(ray, HitNormal, refractionray, obj->material->refractvie_index); //sets the refraction ray, third argument
+			refractionray = refractionray.normalize();
+
+
+			outside = vector3::dot(HitNormal, ray) < 0.0f;
+			HitPos = outside ? HitPos + bias : HitPos - bias;
+
+			rayTrace(refractionray, HitPos, refractivecolor, &recursivehit, RecurssionDepth + 1);
+			color += refractivecolor * obj->material->refract;
 		}
+
+		//*****************************PART 4 - CLAMP and return ***********************************//
+		if (color.x > 255) color.x = 255;
+		if (color.y > 255) color.y = 255;
+		if (color.z > 255) color.z = 255;
+
 	}
 	return didhit;
 }
