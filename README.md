@@ -24,7 +24,8 @@ This project is a lightweight educational renderer focused on core ray tracing c
 - Camera with adjustable position, orientation, and focal distance
 - Recursive ray tracing for reflection and refraction
 - PNG output generation
-
+## Examples
+![Output of the engine](resources/output.png)
 ## Repository structure
 
 - `src/` - core renderer source files
